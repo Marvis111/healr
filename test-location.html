@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Location-Based Hero Image Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .hero-section {
+            text-align: center;
+            margin: 20px 0;
+        }
+        .hero-image {
+            max-width: 100%;
+            height: auto;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        .info {
+            background: #e8f4fd;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        .status {
+            font-weight: bold;
+            color: #333;
+        }
+        .coordinates {
+            font-family: monospace;
+            background: #f0f0f0;
+            padding: 5px;
+            border-radius: 3px;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 10px 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        
+       <div class="hero-section">
+            <h2>Hero Image</h2>
+            <img class="hero-image" src="assets/img/hero-1.webp" alt="Hero Image">
+            <p><strong>Current Image:</strong> <span id="current-image">hero-1.webp</span></p>
+        </div>
+
+        <div class="info">
+            <h3>Location Information</h3>
+            <p><span class="status">Status:</span> <span id="location-status">Detecting location...</span></p>
+            <p><span class="status">Coordinates:</span> <span id="coordinates" class="coordinates">Loading...</span></p>
+            <p><span class="status">Region:</span> <span id="region">Detecting...</span></p>
+        </div>
+
+        <div style="text-align: center;">
+            <button onclick="testLocation()">Test Location Detection</button>
+            <button onclick="resetImage()">Reset to Default</button>
+            <br><br>
+            <button onclick="simulateRegion('north')">Simulate North</button>
+            <button onclick="simulateRegion('east')">Simulate East</button>
+            <button onclick="simulateRegion('west')">Simulate West</button>
+        </div>
+    </div>
+
+    <script>
+        // Update UI with location info
+        function updateLocationInfo(status, coordinates, region, imagePath) {
+            document.getElementById('location-status').textContent = status;
+            document.getElementById('coordinates').textContent = coordinates;
+            document.getElementById('region').textContent = region;
+            document.getElementById('current-image').textContent = imagePath;
+        }
+
+        function simulateRegion(regionKey) {
+            const heroImage = document.querySelector('.hero-image');
+            const nigeriaRegions = {
+                east: { name: 'East Nigeria', image: 'hero-east.webp' },
+                north: { name: 'North Nigeria', image: 'hero-north.webp' },
+                west: { name: 'West Nigeria', image: 'hero-west.webp' }
+            };
+
+            if (nigeriaRegions[regionKey]) {
+                const data = nigeriaRegions[regionKey];
+                heroImage.src = `assets/img/${data.image}`;
+                updateLocationInfo(
+                    'Simulated region',
+                    'N/A',
+                    data.name,
+                    data.image
+                );
+                console.log(`Simulated hero image updated to: ${data.image}`);
+            }
+        }
+
+        function testLocation() {
+            updateLocationInfo('Detecting...', 'Loading...', 'Detecting...', 'hero-1.webp');
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    function(position) {
+                        const latitude = position.coords.latitude;
+                        const longitude = position.coords.longitude;
+                        const nigeriaRegions = {
+                            east: { name: 'East Nigeria', bounds: { north: 7.0, south: 4.0, east: 14.0, west: 10.0 } },
+                            north: { name: 'North Nigeria', bounds: { north: 14.0, south: 9.0, east: 14.0, west: 3.0 } },
+                            west: { name: 'West Nigeria', bounds: { north: 7.0, south: 4.0, east: 6.0, west: 2.0 } }
+                        };
+                        let userRegion = null;
+                        for (const [region, data] of Object.entries(nigeriaRegions)) {
+                            const b = data.bounds;
+                            if (latitude >= b.south && latitude <= b.north &&
+                                longitude >= b.west && longitude <= b.east) {
+                                userRegion = region;
+                                break;
+                            }
+                        }
+                        const heroImage = document.querySelector('.hero-image');
+                        let imagePath = 'hero-1.webp'; 
+                        let regionName = 'Outside Nigeria';
+                        if (userRegion) {
+                            imagePath = `hero-${userRegion}.webp`;
+                            regionName = nigeriaRegions[userRegion].name;
+                        }
+                        heroImage.src = `assets/img/${imagePath}`;
+                        updateLocationInfo(
+                            'Location detected successfully',
+                            `${latitude.toFixed(4)}, ${longitude.toFixed(4)}`,
+                            regionName,
+                            imagePath
+                        );
+                    },
+                    function(error) {
+                        updateLocationInfo('Location detection failed', 'N/A', 'Unknown', 'hero-1.webp');
+                        document.querySelector('.hero-image').src = 'assets/img/hero-1.webp';
+                    },
+                    { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 }
+                );
+            } else {
+                updateLocationInfo('Geolocation not supported', 'N/A', 'Unknown', 'hero-1.webp');
+            }
+        }
+
+        function resetImage() {
+            const heroImage = document.querySelector('.hero-image');
+            heroImage.src = 'assets/img/hero-1.webp';
+            updateLocationInfo('Reset to default', 'N/A', 'Default', 'hero-1.webp');
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(testLocation, 1000); 
+        });
+    </script>
+</body>
+</html>

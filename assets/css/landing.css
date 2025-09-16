@@ -1,0 +1,22 @@
+@media screen and (max-width: 768px) {
+    .navbar-nav {
+        align-items: flex-start !important;
+    }
+    .navbar .navbar-nav .nav-item .nav-link.active,
+.navbar .navbar-nav .nav-item.active .nav-link,
+.navbar .navbar-nav .nav-item:hover .nav-link {
+  color: var(--base-color);
+  background: transparent;
+}
+
+}
+header .header-top-bar [class*="col-"] .header-icon,
+header .navbar [class*="col-"],
+header .navbar [class*="col-"] .navbar-nav {
+  -ms-flex-item-align: stretch;
+  -ms-grid-row-align: stretch;
+  align-self: stretch;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
