@@ -170,3 +170,28 @@ document.addEventListener('DOMContentLoaded', function() {
     const loader = new ComponentLoader();
     loader.loadAll();
 });
+
+
+// Initialize FAQ accordion when DOM is loaded
+document.addEventListener('DOMContentLoaded', function() {
+    generateFAQAccordion();
+    
+    // Handle accordion icon changes
+    document.addEventListener('click', function(e) {
+        if (e.target.closest('[data-bs-toggle="collapse"]')) {
+            const trigger = e.target.closest('[data-bs-toggle="collapse"]');
+            const targetId = trigger.getAttribute('data-bs-target');
+            const target = document.querySelector(targetId);
+            const icon = trigger.querySelector('i:not(.navbar-icon)');
+            if (target) {
+                target.addEventListener('shown.bs.collapse', function() {
+                    icon.className = 'feather icon-feather-minus icon-extra-medium';
+                });
+                
+                target.addEventListener('hidden.bs.collapse', function() {
+                    icon.className = 'feather icon-feather-plus icon-extra-medium';
+                });
+            }
+        }
+    });
+});
