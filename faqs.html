@@ -469,25 +469,6 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
 
-        // Handle accordion icon changes
-        document.addEventListener('click', function(e) {
-            if (e.target.closest('[data-bs-toggle="collapse"]')) {
-                const trigger = e.target.closest('[data-bs-toggle="collapse"]');
-                const targetId = trigger.getAttribute('data-bs-target');
-                const target = document.querySelector(targetId);
-                const icon = trigger.querySelector('i');
-                
-                if (target) {
-                    target.addEventListener('shown.bs.collapse', function() {
-                        icon.className = 'feather icon-feather-minus icon-extra-medium';
-                    });
-                    
-                    target.addEventListener('hidden.bs.collapse', function() {
-                        icon.className = 'feather icon-feather-plus icon-extra-medium';
-                    });
-                }
-            }
-        });
     });
 </script>
 
