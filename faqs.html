@@ -45,31 +45,31 @@
 <section class="pt-0">
     <div class="container">        
         <div class="row justify-content-center mb-5">
-            <div class="col-lg-4 col-md-10">
+            <div class="col-lg-4 col-md-10 d-flex justify-content-center mb-lg-0">
                 <!-- Tab Navigation -->
-                <ul class="nav nav-pills d-inline-flex justify-content-center p-2 border-radius-pill border-color-light-gray" id="faqTabs" role="tablist">
+                <ul class="nav nav-pills d-flex justify-content-center p-2 border-radius-pill border-color-light-gray" id="faqTabs" role="tablist">
                     <li class="nav-item" role="presentation">
-                        <button class="btn btn-extra-large px-6 py-2 me-10px rounded-pill active" 
-                                id="patient-tab" 
-                                data-bs-toggle="pill" 
-                                data-bs-target="#patient-faq" 
-                                type="button" 
-                                role="tab" 
-                                aria-controls="patient-faq" 
+                        <button type="button"
+                                class="nav-link faq-btns btn btn-extra-large px-6 py-2 me-10px rounded-pill active"
+                                id="patient-tab"
+                                data-bs-toggle="tab"
+                                data-bs-target="#patient-faq"
+                                role="tab"
+                                aria-controls="patient-faq"
                                 aria-selected="true">
-                           Patient
+                            Patient
                         </button>
                     </li>
                     <li class="nav-item" role="presentation">
-                        <button class="btn btn-extra-large px-6 py-2 rounded-pill" 
-                                id="doctor-tab" 
-                                data-bs-toggle="pill" 
-                                data-bs-target="#doctors-faq" 
-                                type="button" 
-                                role="tab" 
-                                aria-controls="doctors-faq" 
+                        <button type="button"
+                                class="nav-link btn faq-btns btn-extra-large px-6 py-2 rounded-pill"
+                                id="doctor-tab"
+                                data-bs-toggle="tab"
+                                data-bs-target="#doctors-faq"
+                                role="tab"
+                                aria-controls="doctors-faq"
                                 aria-selected="false">
-                           Doctor
+                            Doctor
                         </button>
                     </li>
                 </ul>
@@ -450,23 +450,17 @@ document.addEventListener('DOMContentLoaded', function() {
     document.addEventListener('DOMContentLoaded', function() {
         // Generate patient FAQs initially
         generateFAQAccordion(patientFaqs, 'patient-accordion');
-        
         // Handle tab switching
-        const tabButtons = document.querySelectorAll('[data-bs-toggle="pill"]');
+        const tabButtons = document.querySelectorAll('.faq-btns');
         tabButtons.forEach(button => {
             button.addEventListener('shown.bs.tab', function (event) {
-                const targetId = event.target.getAttribute('data-bs-target');
-                
+                const targetId = event.target.getAttribute('id');
                 // Load appropriate FAQ data based on selected tab
-                if (targetId === '#patient-faq') {
+                if (targetId === 'patient-tab') {
                     generateFAQAccordion(patientFaqs, 'patient-accordion');
-                } else if (targetId === '#doctors-faq') {
+                } else  {
                     generateFAQAccordion(doctorFaqs, 'doctor-accordion');
                 }
-                
-                document.querySelector('.tab-content').scrollIntoView({
-                    behavior: 'smooth'
-                });
             });
         });
 
