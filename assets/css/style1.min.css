@@ -133,8 +133,7 @@ section.big-section {
   padding-bottom: 130px;
 }
 section.extra-big-section {
-  padding-top: 160px;
-  padding-bottom: 50px;
+
 }
 img {
   max-width: 100%;
@@ -4147,9 +4146,7 @@ header .left-nav .navbar-nav:before {
 .h-auto {
   height: auto !important;
 }
-.extra-very-small-screen {
-  min-height: 250px !important;
-}
+
 .extra-small-screen {
   height: 300px !important;
 }
