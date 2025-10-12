@@ -1,421 +1,71 @@
-AWSTemplateFormatVersion: 2010-09-09
-Description: 'CloudFormation template for a static website hosted on S3 with CloudFront'
+AWSTemplateFormatVersion: "2010-09-09"
+Description: CloudFront distribution for static website hosting with www record support
+
 Parameters:
-  Env:
-    Description: The environment (staging, prod etc.) Used as resource names and tags
-    Type: String
-  ProjectId:
-    Description: The unique id or name of this project. Used in resource names and tags
-    Type: String
   DomainName:
-    Description: Domain names for your website (www.example.com)
+    Description: Domain names for your website (e.g., healr.ng,www.healr.ng)
     Type: String
     Default: ""
   ACMCertificate:
+    Description: ACM Certificate ARN (must be in us-east-1 for CloudFront)
     Type: String
-    Description: 'ACM Certificate ARN'
-  Nonce:
+  S3BucketName:
+    Description: S3 bucket name for static website content
     Type: String
-    Description: "Nonce for the deployment to trigger a new deployment of lambda function, put any random string here"
+  CloudfrontComment:
+    Description: Comment for CloudFront distribution
+    Type: String
+    Default: Static website distribution
 
 Conditions:
   UseCNAMEAlias: !Not [!Equals [!Ref DomainName, ""]]
 
 Resources:
-  # Custom resource for getting latest version of a lambda,
-  # as required by CloudFront.
-  IndexLambdaVersion:
-    Type: Custom::LatestLambdaVersion
-    Properties:
-      ServiceToken: !GetAtt PublishLambdaVersion.Arn
-      FunctionName: !Ref URLRewriteFunction
-      Nonce: !Ref Nonce
-
-  PublishLambdaVersion:
-    Type: AWS::Lambda::Function
-    Properties:
-      Handler: index.handler
-      Runtime: nodejs16.x
-      Role: !GetAtt PublishLambdaVersionRole.Arn
-      Code:
-        ZipFile: |
-          const {Lambda} = require('aws-sdk')
-          const {send, SUCCESS, FAILED} = require('cfn-response')
-          const lambda = new Lambda()
-          exports.handler = (event, context) => {
-            const {RequestType, ResourceProperties: {FunctionName}} = event
-            if (RequestType == 'Delete') return send(event, context, SUCCESS)
-            lambda.publishVersion({FunctionName}, (err, {FunctionArn}) => {
-              err
-                ? send(event, context, FAILED, err)
-                : send(event, context, SUCCESS, {FunctionArn})
-            })
-          }
-
-  PublishLambdaVersionRole:
-    Type: AWS::IAM::Role
-    Properties:
-      AssumeRolePolicyDocument:
-        Version: '2012-10-17'
-        Statement:
-        - Effect: Allow
-          Principal:
-            Service: lambda.amazonaws.com
-          Action: sts:AssumeRole
-      ManagedPolicyArns:
-      - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
-      Policies:
-      - PolicyName: PublishVersion
-        PolicyDocument:
-          Version: '2012-10-17'
-          Statement:
-          - Effect: Allow
-            Action: lambda:PublishVersion
-            Resource: '*'
-
-  URLRewriteFunction:
-    Type: AWS::Lambda::Function
-    Properties:
-      Description: >
-        Lambda function performing request URI rewriting.
-      Code:
-        ZipFile: |
-          exports.handler = async (event) => {
-            const suffix = '.html';
-            const appendToDirs = 'index.html';
-            const removeTrailingSlash = false;
-            const regexSuffixless = /\/[^/.]+$/; // e.g. "/some/page" but not "/", "/some/" or "/some.jpg"
-            const regexTrailingSlash = /.+\/$/; // e.g. "/some/" or "/some/page/" but not root "/"
-            const { request } = event.Records[0].cf
-            const uri = request.uri;
-
-            // Append ".html" to origin request
-            if (suffix && uri.match(regexSuffixless)) {
-                request.uri = uri + suffix;
-                return request;
-            }
-            
-            // Append "index.html" to origin request
-            if (appendToDirs && uri.match(regexTrailingSlash)) {
-                request.uri = uri + appendToDirs;
-                return request;
-            }
-
-            // Redirect (301) non-root requests ending in "/" to URI without trailing slash
-            if (removeTrailingSlash && uri.match(/.+\/$/)) {
-                    return {
-                    // body: '',
-                    // bodyEncoding: 'text',
-                    headers: {
-                        'location': [{
-                            key: 'Location',
-                            value: uri.slice(0, -1)
-                            }]
-                    },
-                    status: '301',
-                    statusDescription: 'Moved Permanently'
-                };
-            }
-
-            // If nothing matches, return request unchanged
-            return request;
-          };
-      Handler: index.handler
-      MemorySize: 128
-      Role: !Sub ${URLRewriteFunctionExecutionRole.Arn}
-      Runtime: nodejs16.x
-
-  URLRewriteFunctionExecutionRole:
-    Type: AWS::IAM::Role
-    Properties:
-      AssumeRolePolicyDocument:
-        Version: 2012-10-17
-        Statement:
-          - Effect: Allow
-            Principal:
-              Service:
-                - edgelambda.amazonaws.com
-                - lambda.amazonaws.com
-            Action:
-              - sts:AssumeRole
-      ManagedPolicyArns:
-        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
-
-  S3WebsiteBucket:
-    Type: AWS::S3::Bucket
-    Properties:
-      BucketName: !Sub "${ProjectId}-${Env}-${AWS::AccountId}"
-  
-  CloudFrontOriginIdentity:
-    Type: AWS::CloudFront::CloudFrontOriginAccessIdentity
-    Properties:
-      CloudFrontOriginAccessIdentityConfig:
-        Comment: 'origin identity'
-
-  S3BucketPolicy:
-    Type: AWS::S3::BucketPolicy
-    Properties:
-      Bucket: !Ref S3WebsiteBucket
-      PolicyDocument:
-        Version: '2012-10-17'
-        Statement:
-        - Effect: Allow
-          Principal:
-              AWS: !Sub 'arn:aws:iam::cloudfront:user/CloudFront Origin Access Identity ${CloudFrontOriginIdentity}'
-          Action:
-          - s3:GetObject
-          Resource: !Sub "arn:aws:s3:::${S3WebsiteBucket}/*"
-
   CloudfrontDistribution:
     Type: AWS::CloudFront::Distribution
     Properties:
       DistributionConfig:
-        CustomErrorResponses:
-          - ErrorCode: 403 # not found
-            ResponseCode: 404
-            ResponsePagePath: '/'
-          - ErrorCode: 404 # not found
-            ResponseCode: 404
-            ResponsePagePath: '/'
-        Comment: S3-Cloudfront
-        Aliases: !If [UseCNAMEAlias, !Split [",", !Ref DomainName], !Ref "AWS::NoValue"]
-        DefaultRootObject: index.html
         Enabled: true
-        Origins:
-          - DomainName: !GetAtt S3WebsiteBucket.DomainName
-            Id: !Ref S3WebsiteBucket
-            S3OriginConfig:
-              OriginAccessIdentity: !Sub 'origin-access-identity/cloudfront/${CloudFrontOriginIdentity}'
+        DefaultRootObject: index.html
+        Aliases: !If [UseCNAMEAlias, !Split [",", !Ref DomainName], !Ref "AWS::NoValue"]
         DefaultCacheBehavior:
-          AllowedMethods:
-          - GET
-          - HEAD
-          - OPTIONS
-          # https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/using-managed-cache-policies.html
-          CachePolicyId: 658327ea-f89d-4fab-a63d-7e88639e58f6
-          TargetOriginId: !Ref S3WebsiteBucket
+          TargetOriginId: S3Origin
           ViewerProtocolPolicy: redirect-to-https
-          LambdaFunctionAssociations:
-            - EventType: origin-request
-              LambdaFunctionARN: !GetAtt IndexLambdaVersion.FunctionArn
-        HttpVersion: http2
-        PriceClass: PriceClass_100
+          AllowedMethods:
+            - GET
+            - HEAD
+          CachedMethods:
+            - GET
+            - HEAD
+          ForwardedValues:
+            QueryString: false
+            Cookies:
+              Forward: none
+        Origins:
+          - Id: S3Origin
+            DomainName: !Sub "${S3BucketName}.s3.amazonaws.com"
+            S3OriginConfig: {}
         ViewerCertificate:
-          AcmCertificateArn:
-            !If [UseCNAMEAlias, !Ref ACMCertificate, !Ref "AWS::NoValue"]
-          CloudFrontDefaultCertificate:
-            !If [UseCNAMEAlias, !Ref "AWS::NoValue", true]
-          SslSupportMethod: !If [UseCNAMEAlias, "sni-only", !Ref "AWS::NoValue"]
+          AcmCertificateArn: !Ref ACMCertificate
+          SslSupportMethod: sni-only
+        Comment: !Ref CloudfrontComment
+        HttpVersion: http2
 
-  S3WebsiteBucketCustomResource:
-    Type: Custom::S3CustomResource
-    Properties:
-      ServiceToken: !GetAtt AWSLambdaFunction.Arn
-      the_bucket: !Ref S3WebsiteBucket
-
-  AWSLambdaFunction:
-     Type: "AWS::Lambda::Function"
-     Properties:
-       Description: "Work with S3 Buckets!"
-       FunctionName: !Sub 'HealR-landingpage-${AWS::Region}-lambda'
-       Handler: index.handler
-       Role: !GetAtt AWSLambdaExecutionRole.Arn
-       Timeout: 360
-       Runtime: python3.9
-       Code:
-         ZipFile: |
-          import boto3
-          import cfnresponse
-          def handler(event, context):
-              # Init ...
-              the_event = event['RequestType']
-              print("The event is: ", str(the_event))
-              response_data = {}
-              s_3 = boto3.client('s3')
-              # Retrieve parameters
-              the_bucket = event['ResourceProperties']['the_bucket']
-              try:
-                  if the_event in ('Create', 'Update'):
-                      print("Bucket Event for creation or update ", the_event)
-                  elif the_event == 'Delete':
-                      print("Deleting S3 content...")
-                      b_operator = boto3.resource('s3')
-                      b_operator.Bucket(str(the_bucket)).objects.all().delete()
-                  # Everything OK... send the signal back
-                  print("Operation successful!")
-                  cfnresponse.send(event,
-                                   context,
-                                   cfnresponse.SUCCESS,
-                                   response_data)
-              except Exception as e:
-                  print("Operation failed...")
-                  print(str(e))
-                  response_data['Data'] = str(e)
-                  cfnresponse.send(event,
-                                   context,
-                                   cfnresponse.FAILED,
-                                   response_data)
-
-  LambdaClearObjectsInBucket:
-     Type: "AWS::Lambda::Function"
-     Properties:
-       Description: "Work with S3 Buckets!"
-       FunctionName: 'HealR-landingpage-clear-objects-lambda'
-       Handler: index.handler
-       Role: !GetAtt LambdaClearObjectsExecutionRole.Arn
-       Timeout: 360
-       Runtime: python3.9
-       Code:
-         ZipFile: |
-          import time
-          import logging
-          from botocore.exceptions import ClientError
-          import boto3
-          import cfnresponse
-
-          LOGGER = logging.getLogger()
-          LOGGER.setLevel(logging.INFO)
-
-          def codepipeline_success(job_id):
-              """
-              Puts CodePipeline Success Result
-              """
-              try:
-                  codepipeline = boto3.client('codepipeline')
-                  codepipeline.put_job_success_result(jobId=job_id)
-                  LOGGER.info('===SUCCESS===')
-                  return True
-              except ClientError as err:
-                  LOGGER.error("Failed to PutJobSuccessResult for CodePipeline!\n%s", err)
-                  return False
-
-          def codepipeline_failure(job_id, message):
-              try:
-                  codepipeline = boto3.client('codepipeline')
-                  codepipeline.put_job_failure_result(
-                      jobId=job_id,
-                      failureDetails={'type': 'JobFailed', 'message': message}
-                  )
-                  LOGGER.info('===FAILURE===')
-                  return True
-              except ClientError as err:
-                  LOGGER.error("Failed to PutJobFailureResult for CodePipeline!\n%s", err)
-                  return False
-
-          def handler(event, context):
-              LOGGER.info(event)
-              try:
-                  job_id = event['CodePipeline.job']['id']
-                  s3Bucket = event['CodePipeline.job']['data']['actionConfiguration']['configuration']['UserParameters']
-                  print("Deleting S3 content...")
-                  b_operator = boto3.resource('s3')
-                  b_operator.Bucket(str(s3Bucket)).objects.all().delete()
-                  print("Operation successful!")
-                  codepipeline_success(job_id)
-                  
-              except KeyError as err:
-                  LOGGER.error("Could not retrieve CodePipeline Job ID!\n%s", err)
-                  return False
-                  codepipeline_failure(job_id, err)
-  
-  AWSLambdaExecutionRole:
-     Type: AWS::IAM::Role
-     Properties:
-       AssumeRolePolicyDocument:
-         Statement:
-         - Action:
-           - sts:AssumeRole
-           Effect: Allow
-           Principal:
-             Service:
-             - lambda.amazonaws.com
-         Version: '2012-10-17'
-       Path: "/"
-       Policies:
-       - PolicyDocument:
-           Statement:
-           - Action:
-             - logs:CreateLogGroup
-             - logs:CreateLogStream
-             - logs:PutLogEvents
-             Effect: Allow
-             Resource: arn:aws:logs:*:*:*
-           Version: '2012-10-17'
-         PolicyName: !Sub HealR-landingpage-${AWS::Region}-AWSLambda-CW
-       - PolicyDocument:
-           Statement:
-           - Action:
-             - s3:PutObject
-             - s3:DeleteObject
-             - s3:List*
-             Effect: Allow
-             Resource:
-             - !Sub arn:aws:s3:::${S3WebsiteBucket}/*
-             - !Sub arn:aws:s3:::${S3WebsiteBucket}
-           Version: '2012-10-17'
-         PolicyName: !Sub HealR-landingpage-${AWS::Region}-AWSLambda-S3
-       RoleName: !Sub HealR-landingpage-${AWS::Region}-AWSLambdaExecutionRole
-
-  LambdaClearObjectsExecutionRole:
-     Type: AWS::IAM::Role
-     Properties:
-       RoleName: HealR-landingpage-Clear-Objects-AWSLambdaExecutionRole
-       Path: "/"
-       AssumeRolePolicyDocument:
-         Statement:
-         - Action:
-           - sts:AssumeRole
-           Effect: Allow
-           Principal:
-             Service:
-             - lambda.amazonaws.com
-         Version: '2012-10-17'
-       Policies:
-       - PolicyDocument:
-           Statement:
-           - Action:
-             - s3:DeleteObject
-             - s3:List*
-             Effect: Allow
-             Resource:
-             - !Sub arn:aws:s3:::${S3WebsiteBucket}/*
-             - !Sub arn:aws:s3:::${S3WebsiteBucket}
-           Version: '2012-10-17'
-         PolicyName: HealR-landingpage-Clear-Objects-AWSLambda-S3
-       - PolicyDocument:
-           Statement:
-            - Sid: VisualEditor1
-              Effect: Allow
-              Action: [
-                'codepipeline:PutJobSuccessResult',
-                'codepipeline:PutJobFailureResult'
-              ]
-              Resource: '*'
-            - Sid: VisualEditor2
-              Effect: Allow
-              Action: logs:*
-              Resource: '*'
-           Version: '2012-10-17'
-         PolicyName: HealR-landingpage-Clear-Objects-CodePipeline
   WWWRecordSet:
-  Type: AWS::Route53::RecordSet
-  Properties:
-    HostedZoneName: healr.ng.
-    Name: www.healr.ng.
-    Type: A
-    AliasTarget:
-      DNSName: !GetAtt CloudfrontDistribution.DomainName
-      HostedZoneId: Z00993721ZVFM3W5CEUYM
+    Type: AWS::Route53::RecordSet
+    Properties:
+      HostedZoneName: healr.ng.    # NOTE: trailing dot is required
+      Name: www.healr.ng.          # NOTE: trailing dot is required
+      Type: A
+      AliasTarget:
+        DNSName: !GetAtt CloudfrontDistribution.DomainName
+        HostedZoneId: Z00993721ZVFM3W5CEUYM  # global CloudFront hosted zone ID
 
 Outputs:
-  CloudfrontDistID:
-    Description: Cloudfront Distribution
-    Value:
-      !Ref CloudfrontDistribution
-  CloudfrontDomainName:
-    Description: Cloudfront Domain Name
-    Value:
-      !GetAtt CloudfrontDistribution.DomainName
-  S3BucketName:
-    Description: S3 Bucket Name
-    Value: !Ref S3WebsiteBucket
+  CloudFrontDistributionID:
+    Description: CloudFront Distribution ID
+    Value: !Ref CloudfrontDistribution
+
+  CloudFrontDomainName:
+    Description: CloudFront Domain Name
+    Value: !GetAtt CloudfrontDistribution.DomainName
