@@ -397,6 +397,15 @@ Resources:
               Resource: '*'
            Version: '2012-10-17'
          PolicyName: HealR-landingpage-Clear-Objects-CodePipeline
+  WWWRecordSet:
+  Type: AWS::Route53::RecordSet
+  Properties:
+    HostedZoneName: healr.ng.
+    Name: www.healr.ng.
+    Type: A
+    AliasTarget:
+      DNSName: !GetAtt CloudfrontDistribution.DomainName
+      HostedZoneId: Z00993721ZVFM3W5CEUYM
 
 Outputs:
   CloudfrontDistID:
