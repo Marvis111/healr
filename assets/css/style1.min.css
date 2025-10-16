@@ -128,7 +128,7 @@ section.big-section {
   padding-bottom: 130px;
 }
 section.extra-big-section {
-
+  margin-top: 20px;
 }
 img {
   max-width: 100%;
