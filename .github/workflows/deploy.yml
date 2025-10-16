@@ -41,9 +41,9 @@ jobs:
       - name: Select domain name based on environment
         run: |
           if [ "${{ env.environment }}" = "dev" ]; then
-            echo "domain_name=staging.healr.ng" >> $GITHUB_ENV
+            echo "domain_name=\"staging.healr.ng\"" >> $GITHUB_ENV
           else
-            echo "domain_name=healr.ng" >> $GITHUB_ENV
+            echo "domain_name=\"healr.ng,www.healr.ng\"" >> $GITHUB_ENV
           fi
       
       - name: Select CloudFormation template based on environment
