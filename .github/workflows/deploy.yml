@@ -1,0 +1,83 @@
+name: Deploy HealR Landingpage
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Environment to deploy to"
+        type: choice
+        options:
+          - dev
+          - prod
+
+permissions:
+  id-token: write # This is required for aws oidc connection
+  contents: read # This is required for actions/checkout
+
+jobs:
+  deploy:
+    name: Deploy stack to AWS
+    runs-on: ubuntu-latest
+    env:
+      environment: ${{ github.event.inputs.environment }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Configure AWS credentials
+        id: creds
+        uses: aws-actions/configure-aws-credentials@v5
+        with:
+          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT }}:role/${{secrets.AWS_ROLE}}
+          aws-region: ${{ secrets.AWS_REGION }}
+          role-session-name: GitHub-OIDC
+
+      - name: Get Nonce
+        id: nonce
+        run: |
+          TIMESTAMP=$(date +%s)
+          echo "timestamp=$TIMESTAMP" >> $GITHUB_ENV
+
+      - name: Select domain name based on environment
+        run: |
+          if [ "${{ env.environment }}" = "dev" ]; then
+            echo "domain_name=\"staging.healr.ng\"" >> $GITHUB_ENV
+          else
+            echo "domain_name=\"healr.ng,www.healr.ng\"" >> $GITHUB_ENV
+          fi
+      
+      - name: Select CloudFormation template based on environment
+        run: |
+          if [ "${{ env.environment }}" = "dev" ]; then
+            echo "cloudformation_template=cloudformation/staging-template.yml" >> $GITHUB_ENV
+          else
+            echo "cloudformation_template=cloudformation/template.yml" >> $GITHUB_ENV
+          fi
+
+      - name: Deploy CloudFormation stack
+        id: deploy
+        uses: aws-actions/aws-cloudformation-github-deploy@v1
+        with:
+          name: healr-landingpage-${{ env.environment }}-stack
+          template: ${{ env.cloudformation_template }}
+          capabilities: CAPABILITY_NAMED_IAM
+          no-fail-on-empty-changeset: "1"
+          parameter-overrides: >-
+            Env=${{ env.environment }},
+            ProjectId=healr,
+            DomainName=${{ env.domain_name }},
+            Nonce=${{ env.timestamp }},
+            ACMCertificate="${{ secrets.ACM_CERTIFICATE_ARN }}"
+          tags: '[ { "Key": "Environment", "Value": "${{ env.environment }}" }, { "Key": "ProjectId", "Value": "healr" }]'
+
+      - name: Upload Artifact to S3 Bucket
+        run: |
+          aws s3 sync ./ s3://${{ steps.deploy.outputs.S3BucketName }} --delete
+
+      - name: Invalidate CloudFront Cache
+        run: |
+          aws cloudfront create-invalidation --distribution-id ${{ steps.deploy.outputs.CloudfrontDistID }} --paths "/*"
+
+      - name: Print Cloudfront URL
+        run: |
+          echo "Domain: https://${{ steps.deploy.outputs.CloudfrontDomainName }}"
