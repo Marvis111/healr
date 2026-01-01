@@ -84,20 +84,16 @@ class ComponentLoader {
             currentPage = 'index.html';
         }
         
-        console.log('Setting active navigation for page:', currentPage);
         
         var navLinks = $(".navbar-nav .nav-link");
-        console.log('Found navigation links:', navLinks.length);
         
         navLinks.each(function () {
             var _this = $(this),
                 aHref = _this.attr("href");
             
-            console.log('Checking link:', aHref);
             
             // Skip links that don't have href or are external links
             if (!aHref || aHref.startsWith('http') || aHref.startsWith('#')) {
-                console.log('Skipping link:', aHref);
                 return;
             }
             
@@ -106,7 +102,6 @@ class ComponentLoader {
                 (currentPage === 'index.html' && aHref === 'index.html') ||
                 (currentPage === 'index.html' && aHref === './') ||
                 (currentPage === 'index.html' && aHref === '/')) {
-                console.log('Setting active for:', aHref);
                 _this.addClass("active");
                 _this.parent().addClass("active");
             } else {
@@ -231,9 +226,6 @@ class ComponentLoader {
         const currentUrl = window.location.href;
         const headerButtons = document.getElementById('header-buttons');
         
-        console.log('Current pathname:', currentPage);
-        console.log('Current URL:', currentUrl);
-        console.log('Header buttons element:', headerButtons);
         
         // Check multiple conditions for index page
         const isIndexPage = currentPage === '/index.html' || 
@@ -242,10 +234,8 @@ class ComponentLoader {
                            currentUrl.includes('index.html') ||
                            (currentPage === '' && window.location.href.includes('index.html'));
         
-        console.log('Is index page:', isIndexPage);
         
         if (isIndexPage && headerButtons) {
-            console.log('Hiding header buttons');
             headerButtons.style.display = 'none';
         }
     }
