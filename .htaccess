@@ -8,8 +8,8 @@ DirectoryIndex index.html
 RewriteRule ^index$ / [R=301,L]
 RewriteRule ^index\.html$ / [R=301,L]
 
-# Route /doctor/{uid}/profile to /doctor/profile.html (preserve URL for JS to read)
-RewriteRule ^doctor/([a-zA-Z0-9-]+)/profile/?$ doctor/profile.html [L]
+# Route /doctor/{username} to /doctor/profile.html (preserve URL for JS to read)
+RewriteRule ^doctor/([^/.]+)/?$ doctor/profile.html [L,QSA]
 
 # If URL has no extension, but .html file exists → serve it
 RewriteCond %{REQUEST_FILENAME} !-d
