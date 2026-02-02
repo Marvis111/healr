@@ -10,16 +10,16 @@
     <meta name="description"
         content="Book a consultation with verified doctors on HealR, Nigeria's leading telemedicine platform.">
     <!-- favicon icon -->
-    <link rel="shortcut icon" href="../assets/img/logo/fav.svg">
-    <link rel="apple-touch-icon" href="../assets/img/logo/fav.svg">
-    <link rel="apple-touch-icon" sizes="72x72" href="../assets/img/logo/fav.svg">
+    <link rel="shortcut icon" href="/assets/img/logo/fav.svg">
+    <link rel="apple-touch-icon" href="/assets/img/logo/fav.svg">
+    <link rel="apple-touch-icon" sizes="72x72" href="/assets/img/logo/fav.svg">
     <meta name="theme-color" content="#4285f4">
     <!-- style sheets and font icons -->
-    <link rel="stylesheet" href="../assets/css/vendors.min.css">
-    <link rel="stylesheet" href="../assets/css/icon.min.css">
-    <link rel="stylesheet" href="../assets/css/style1.min.css">
-    <link rel="stylesheet" href="../assets/css/responsive1.min.css">
-    <link rel="stylesheet" href="../assets/css/landing.css">
+    <link rel="stylesheet" href="/assets/css/vendors.min.css">
+    <link rel="stylesheet" href="/assets/css/icon.min.css">
+    <link rel="stylesheet" href="/assets/css/style1.min.css">
+    <link rel="stylesheet" href="/assets/css/responsive1.min.css">
+    <link rel="stylesheet" href="/assets/css/landing.css">
 
     <!-- Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -702,9 +702,9 @@
     </div>
 
     <!-- Scripts -->
-    <script type="text/javascript" src="../assets/js/jquery.js"></script>
-    <script type="text/javascript" src="../assets/js/vendors.min.js"></script>
-    <script type="text/javascript" src="../assets/js/main.js"></script>
+    <script type="text/javascript" src="/assets/js/jquery.js"></script>
+    <script type="text/javascript" src="/assets/js/vendors.min.js"></script>
+    <script type="text/javascript" src="/assets/js/main.js"></script>
 
     <script>
         // API Configuration
@@ -774,8 +774,10 @@
 
                 // Handle specific API error response
                 if (result.error || result.status === 'Not Found' || result.message === 'Failed') {
-                    const errorDetail = result.error?.detail || result.message || 'Doctor not found or unavailable';
-                    throw new Error(errorDetail);
+                    const errorDetail = result.error?.detail || result.message || 'Doctor not found';
+                    const err = new Error(errorDetail);
+                    err.isNotFound = (result.status === 'Not Found' || errorDetail.includes('not found'));
+                    throw err;
                 }
 
                 if (!result.data) {
@@ -863,6 +865,11 @@
             } catch (error) {
                 console.error('Error fetching doctor data:', error);
 
+                if (error.isNotFound) {
+                    showError(error.message, true);
+                    return null;
+                }
+
                 // Check if it's a CORS error
                 if (error.message.includes('Failed to fetch') || error.name === 'TypeError') {
                     let errorMessage = 'Unable to connect to the server. This might be a CORS issue.';
@@ -908,19 +915,38 @@
         }
 
         // Show error message
-        function showError(message) {
+        function showError(message, is404 = false) {
             const container = document.getElementById('profile-main-container');
             if (container) {
-                container.innerHTML = `
-                    <div style="text-align: center; padding: 3rem 0;">
-                        <i class="fas fa-exclamation-circle" style="font-size: 3rem; color: var(--danger-color); margin-bottom: 1rem;"></i>
-                        <h2 style="color: var(--text-dark); margin-bottom: 0.5rem;">Error Loading Profile</h2>
-                        <p style="color: var(--text-gray);">${message}</p>
-                        <button onclick="location.reload()" style="margin-top: 1rem; padding: 0.75rem 1.5rem; background: var(--primary-color); color: white; border: none; border-radius: 0.5rem; cursor: pointer;">
-                            Try Again
-                        </button>
-                    </div>
-                `;
+                if (is404) {
+                    container.innerHTML = `
+                        <div style="text-align: center; padding: 5rem 1rem;">
+                            <div style="margin-bottom: 2rem;">
+                                <i class="fas fa-search-minus" style="font-size: 5rem; color: #cbd5e1;"></i>
+                            </div>
+                            <h1 style="font-size: 4rem; font-weight: 800; color: #1e293b; margin: 0;">404</h1>
+                            <h2 style="font-size: 1.5rem; font-weight: 600; color: #475569; margin-bottom: 1rem;">Doctor Not Found</h2>
+                            <p style="color: #64748b; max-width: 400px; margin: 0 auto 2rem;">
+                                Sorry, we couldn't find a doctor with the username <strong>@${doctorUsername}</strong>. 
+                                Please check the URL or try searching for another doctor.
+                            </p>
+                            <a href="/" style="display: inline-block; padding: 0.75rem 2rem; background: var(--primary-color); color: white; text-decoration: none; border-radius: 0.5rem; font-weight: 600; transition: transform 0.2s;">
+                                Back to Homepage
+                            </a>
+                        </div>
+                    `;
+                } else {
+                    container.innerHTML = `
+                        <div style="text-align: center; padding: 3rem 0;">
+                            <i class="fas fa-exclamation-circle" style="font-size: 3rem; color: var(--danger-color); margin-bottom: 1rem;"></i>
+                            <h2 style="color: var(--text-dark); margin-bottom: 0.5rem;">Error Loading Profile</h2>
+                            <p style="color: var(--text-gray);">${message}</p>
+                            <button onclick="location.reload()" style="margin-top: 1rem; padding: 0.75rem 1.5rem; background: var(--primary-color); color: white; border: none; border-radius: 0.5rem; cursor: pointer;">
+                                Try Again
+                            </button>
+                        </div>
+                    `;
+                }
             }
         }
 
@@ -1168,7 +1194,6 @@
                             <div class="consultation-fee">
                                 <span style="color: var(--text-gray);">Consultation Fee</span>
                                 <div class="fee-amount">
-                                    <i class="fas fa-money-bill-wave"></i>
                                     <span id="consultation-fee"></span>
                                 </div>
                             </div>
@@ -1419,13 +1444,6 @@
 
             try {
                 // TODO: Replace with actual API call
-                console.log('Submitting report:', {
-                    doctorUid: doctorData.uid,
-                    doctorUsername: doctorData.username,
-                    reason: reportReason.value,
-                    details: reportDetails.value
-                });
-
                 // Simulate API call
                 await new Promise(resolve => setTimeout(resolve, 1500));
 
