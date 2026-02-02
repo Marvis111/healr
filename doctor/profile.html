@@ -606,132 +606,20 @@
         </div>
 
         <!-- Profile Content -->
-        <div class="container" style="padding: 1.25rem 0;">
-            <div class="row">
-                <!-- Left Column - Doctor Info -->
-                <div class="col-lg-8">
-                    <!-- Profile Card -->
-                    <div class="profile-card">
-                        <div class="row">
-                            <!-- Avatar -->
-                            <div class="col-auto mb-3 mb-sm-0">
-                                <div id="doctor-avatar"></div>
-                            </div>
-
-                            <!-- Info -->
-                            <div class="col">
-                                <div class="d-flex justify-content-between align-items-start mb-2 flex-wrap gap-2">
-                                    <div>
-                                        <h1 style="font-size: 1.875rem; font-weight: bold; color: var(--text-dark); margin-bottom: 0.25rem;"
-                                            id="doctor-name"></h1>
-                                        <p style="color: var(--text-gray); font-size: 1.125rem; margin: 0;"
-                                            id="doctor-title"></p>
-                                    </div>
-                                    <div id="verified-badge"></div>
-                                </div>
-
-                                <!-- Rating -->
-                                <div class="d-flex align-items-center gap-2 mb-3 flex-wrap" id="rating-section"></div>
-
-                                <!-- Quick Info -->
-                                <div class="row g-3" id="quick-info"></div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- About Section -->
-                    <div class="profile-card">
-                        <h2 class="section-title">About</h2>
-                        <p style="color: var(--text-dark); line-height: 1.6;" id="doctor-bio"></p>
-                    </div>
-
-                    <!-- Education -->
-                    <div class="profile-card">
-                        <h2 class="section-title">
-                            <i class="fas fa-graduation-cap"></i>
-                            Education
-                        </h2>
-                        <div id="education-list"></div>
-                    </div>
-
-                    <!-- Certifications -->
-                    <div class="profile-card">
-                        <h2 class="section-title">
-                            <i class="fas fa-certificate"></i>
-                            Certifications
-                        </h2>
-                        <div id="certifications-list"></div>
-                    </div>
-
-                    <!-- Awards -->
-                    <div class="profile-card">
-                        <h2 class="section-title">
-                            <i class="fas fa-award"></i>
-                            Awards & Recognition
-                        </h2>
-                        <div id="awards-list"></div>
-                    </div>
-
-                    <!-- Hospital Affiliation -->
-                    <div class="profile-card">
-                        <h2 class="section-title">Hospital Affiliation</h2>
-                        <div id="hospital-info"></div>
-                    </div>
-
-                    <!-- Reviews Section -->
-                    <div class="profile-card">
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                            <h2 class="section-title mb-0">Patient Reviews</h2>
-                            <span style="font-size: 0.875rem; color: var(--text-gray);" id="reviews-count"></span>
-                        </div>
-                        <div id="reviews-list"></div>
-                        <div id="reviews-pagination"></div>
-                    </div>
+        <div class="container" id="profile-main-container" style="padding: 1.25rem 0;">
+            <div style="text-align: center; padding: 3rem 0;">
+                <div
+                    style="display: inline-block; width: 3rem; height: 3rem; border: 4px solid var(--border-light); border-top-color: var(--primary-color); border-radius: 50%; animation: spin 1s linear infinite;">
                 </div>
-
-                <!-- Right Column - Booking Card -->
-                <div class="col-lg-4">
-                    <div class="booking-card">
-                        <div class="consultation-fee">
-                            <span style="color: var(--text-gray);">Consultation Fee</span>
-                            <div class="fee-amount">
-                                <span id="consultation-fee"></span>
-                            </div>
-                        </div>
-
-                        <div class="availability-badge" id="availability"></div>
-
-                        <button class="book-btn" id="book-consultation-btn">Book Consultation</button>
-
-                        <div style="border-top: 1px solid var(--border-color); padding-top: 1rem;">
-                            <h4 style="font-weight: 600; color: var(--text-dark); margin-bottom: 0.75rem;">What to
-                                expect:</h4>
-                            <ul class="expectations-list">
-                                <li>
-                                    <i class="fas fa-check-circle"></i>
-                                    <span>Secure video consultation</span>
-                                </li>
-                                <li>
-                                    <i class="fas fa-check-circle"></i>
-                                    <span>Digital prescription</span>
-                                </li>
-                                <li>
-                                    <i class="fas fa-check-circle"></i>
-                                    <span>Medical records access</span>
-                                </li>
-                                <li>
-                                    <i class="fas fa-check-circle"></i>
-                                    <span>Follow-up support</span>
-                                </li>
-                            </ul>
-                        </div>
-
-                        <div class="terms-notice">
-                            <p>By booking, you agree to HealR's Terms of Service and Privacy Policy</p>
-                        </div>
-                    </div>
-                </div>
+                <p style="color: var(--text-gray); margin-top: 1rem;">Loading doctor profile...</p>
             </div>
+            <style>
+                @keyframes spin {
+                    to {
+                        transform: rotate(360deg);
+                    }
+                }
+            </style>
         </div>
 
         <!-- Footer -->
@@ -817,73 +705,242 @@
     <script type="text/javascript" src="../assets/js/jquery.js"></script>
     <script type="text/javascript" src="../assets/js/vendors.min.js"></script>
     <script type="text/javascript" src="../assets/js/main.js"></script>
-    <script type="text/javascript" src="../assets/js/components.js"></script>
 
     <script>
-        // Static doctor data - will be replaced with API data later
-        const STATIC_DOCTOR_DATA = {
-            name: "Dr. Sarah Johnson",
-            title: "MBBS, MD (Internal Medicine)",
-            specialization: "Internal Medicine",
-            experience: "12 years",
-            hospital: "Lagos University Teaching Hospital",
-            location: "Lagos, Nigeria",
-            avatar: "", // Empty for now - will show initials
-            bio: "Experienced internal medicine specialist with a focus on preventive care and chronic disease management. Passionate about making quality healthcare accessible to all Nigerians.",
-            languages: ["English", "Yoruba", "Igbo"],
-            consultationFee: "₦5,000",
-            rating: 4.8,
-            totalConsultations: 1247,
-            totalReviews: 342,
-            verified: true,
-            availability: "Available Today",
-            education: [
-                { degree: "MBBS", institution: "University of Lagos", year: "2010" },
-                { degree: "MD (Internal Medicine)", institution: "Lagos University Teaching Hospital", year: "2015" }
-            ],
-            awards: [
-                { title: "Best Young Doctor Award", organization: "Nigerian Medical Association", year: "2020" },
-                { title: "Excellence in Patient Care", organization: "Lagos State Health Ministry", year: "2022" }
-            ],
-            certifications: [
-                "Board Certified in Internal Medicine",
-                "Advanced Cardiac Life Support (ACLS)",
-                "Basic Life Support (BLS)"
-            ],
-            reviews: [
-                {
-                    patientName: "Adebayo O.",
-                    rating: 5,
-                    date: "2 weeks ago",
-                    comment: "Dr. Johnson is very professional and caring. She took time to explain my condition and treatment options. Highly recommended!"
-                },
-                {
-                    patientName: "Chioma N.",
-                    rating: 5,
-                    date: "1 month ago",
-                    comment: "Excellent doctor! Very thorough in her examination and diagnosis. I felt heard and well cared for."
-                },
-                {
-                    patientName: "Tunde A.",
-                    rating: 4,
-                    date: "2 months ago",
-                    comment: "Great experience overall. Dr. Johnson is knowledgeable and patient. The consultation was very helpful."
-                }
-            ]
-        };
+        // API Configuration
+        const API_BASE_URL = 'https://web-production-35b1.up.railway.app/api';
 
-        // Get doctor UID from URL
-        function getDoctorUidFromUrl() {
+        // Get doctor username from URL (supports both path and query param)
+        function getDoctorUsernameFromUrl() {
+            // First, check for query parameter ?username=xxx
+            const urlParams = new URLSearchParams(window.location.search);
+            const usernameParam = urlParams.get('username');
+            if (usernameParam) {
+                return usernameParam;
+            }
+
+            // Fallback to path-based extraction /doctor/{username}/profile
             const pathParts = window.location.pathname.split('/');
             const doctorIndex = pathParts.indexOf('doctor');
             if (doctorIndex !== -1 && pathParts[doctorIndex + 1]) {
-                return pathParts[doctorIndex + 1];
+                const potentialUsername = pathParts[doctorIndex + 1];
+                // Ignore if it's "profile.html" or similar
+                if (potentialUsername.includes('.html')) {
+                    return null;
+                }
+                return potentialUsername;
             }
+
             return null;
         }
 
-        const doctorUid = getDoctorUidFromUrl();
-        console.log('Viewing public profile for doctor UID:', doctorUid);
+        const doctorUsername = getDoctorUsernameFromUrl();
+        console.log('Viewing public profile for doctor username:', doctorUsername);
+
+        // Fetch doctor data from API
+        async function fetchDoctorData(username) {
+            try {
+                console.log('Fetching doctor data for username:', username);
+                console.log('API URL:', `${API_BASE_URL}/v1/doctors/@${username}/`);
+
+                // Check if running from file protocol (common cause of CORS errors)
+                if (window.location.protocol === 'file:') {
+                    console.warn('Running from file:// protocol. This often causes CORS errors. Please run via a local server (e.g., Live Server, http-server, or python -m http.server).');
+                }
+
+                // Simple GET request - removing Content-Type to avoid preflight OPTIONS check
+                let response;
+                try {
+                    response = await fetch(`${API_BASE_URL}/v1/doctors/@${username}/`, {
+                        method: 'GET',
+                        headers: { 'Accept': 'application/json' }
+                    });
+                } catch (directError) {
+                    console.warn('Direct API request failed, trying CORS proxy...', directError);
+                    // Fallback: Use a CORS Proxy (api.allorigins.win)
+                    response = await fetch(`https://api.allorigins.win/raw?url=${encodeURIComponent(`${API_BASE_URL}/v1/doctors/@${username}/`)}`);
+                }
+
+                console.log('Response status:', response.status);
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error('API Error Response:', errorText);
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const result = await response.json();
+                console.log('API Response:', result);
+
+                // Handle specific API error response
+                if (result.error || result.status === 'Not Found' || result.message === 'Failed') {
+                    const errorDetail = result.error?.detail || result.message || 'Doctor not found or unavailable';
+                    throw new Error(errorDetail);
+                }
+
+                if (!result.data) {
+                    throw new Error('Invalid API response: missing data object');
+                }
+
+                const data = result.data; // Extract nested data object
+
+                // Get primary specialty
+                const primarySpecialty = data.profile?.specialty;
+                const otherSpecialties = data.profile?.other_specialties || [];
+
+                // Format consultation fee from specialty
+                const consultationFee = primarySpecialty?.fee
+                    ? `₦${primarySpecialty.fee.toLocaleString()}`
+                    : 'Contact for pricing';
+
+                // Calculate years of experience from date of birth (rough estimate)
+                const yearsOfExperience = calculateExperienceFromDOB(data.date_of_birth);
+
+                // Get location
+                const location = data.state && data.country
+                    ? `${data.state}, ${data.country}`
+                    : data.country || 'Nigeria';
+
+                // Helper to capitalize words
+                const capitalize = (str) => str ? str.replace(/\b\w/g, c => c.toUpperCase()) : '';
+
+                // Collect and format all specialties
+                let allSpecialties = [];
+                if (primarySpecialty?.name) allSpecialties.push(primarySpecialty.name);
+                otherSpecialties.forEach(s => {
+                    if (s.name) allSpecialties.push(s.name);
+                });
+
+                // Remove duplicates, capitalize, and join
+                const displaySpecialties = [...new Set(allSpecialties)]
+                    .map(s => capitalize(s))
+                    .join(', ');
+
+                // Transform API data to match our expected format
+                return {
+                    uid: data.uid,
+                    username: data.username,
+                    name: `Dr. ${data.first_name} ${data.last_name}`,
+                    fullName: data.full_name,
+                    title: capitalize(primarySpecialty?.name) || 'Medical Doctor',
+                    specialization: displaySpecialties || 'General Practice',
+                    otherSpecialties: otherSpecialties.map(s => capitalize(s.name)),
+                    experience: yearsOfExperience,
+                    regNumber: data.profile?.reg_number || 'Not Available',
+                    folioNumber: data.profile?.folio_number || 'Not Available',
+                    hospital: 'Licensed Medical Practitioner', // Update if hospital data is available
+                    location: location,
+                    avatar: data.avatar_url || '',
+                    bio: data.profile?.bio || 'Not Available',
+                    languages: data.profile?.languages && data.profile.languages.length > 0
+                        ? data.profile.languages
+                        : ['English'],
+                    consultationFee: consultationFee,
+                    rating: parseFloat(data.average_rating) || 0,
+                    totalConsultations: data.total_consultations || 0,
+                    totalReviews: data.reviews?.length || 0,
+                    verified: data.profile?.profile_locked || false,
+                    availability: 'Available for consultation',
+                    education: (data.profile?.education || []).map(edu => ({
+                        degree: edu.degree || 'Medical Degree',
+                        institution: edu.institution || 'Medical Institution',
+                        year: edu.year || 'N/A'
+                    })),
+                    awards: (data.profile?.awards || []).map(award => ({
+                        title: award.title || award.name || award,
+                        organization: award.organization || 'Medical Association',
+                        year: award.year || new Date().getFullYear().toString()
+                    })),
+                    // Certifications removed as per request
+                    certifications: [],
+                    reviews: (data.reviews || []).map(review => ({
+                        patientName: review.patient_name || 'Anonymous',
+                        rating: review.rating || 5,
+                        date: formatReviewDate(review.created_at),
+                        comment: review.comment || review.review || ''
+                    }))
+                };
+            } catch (error) {
+                console.error('Error fetching doctor data:', error);
+
+                // Check if it's a CORS error
+                if (error.message.includes('Failed to fetch') || error.name === 'TypeError') {
+                    let errorMessage = 'Unable to connect to the server. This might be a CORS issue.';
+
+                    if (window.location.protocol === 'file:') {
+                        errorMessage += ' <b>You are running this file directly.</b> Browsers block API requests from local files. Please run this page using a local server (like "Live Server" in VS Code).';
+                    } else {
+                        errorMessage += ' Please check your API configuration or network connection.';
+                    }
+
+                    showError(errorMessage);
+                } else {
+                    showError(`Unable to load doctor profile: ${error.message}`);
+                }
+
+                return null;
+            }
+        }
+
+        // Calculate years of experience from date of birth (rough estimate)
+        function calculateExperienceFromDOB(dob) {
+            if (!dob) return '5+ years';
+            const birthYear = new Date(dob).getFullYear();
+            const currentYear = new Date().getFullYear();
+            const age = currentYear - birthYear;
+            // Assume they started practicing around age 25
+            const yearsOfPractice = Math.max(0, age - 25);
+            return yearsOfPractice > 0 ? `${yearsOfPractice}+ years` : 'Licensed practitioner';
+        }
+
+        // Format review date
+        function formatReviewDate(dateString) {
+            if (!dateString) return 'Recently';
+            const date = new Date(dateString);
+            const now = new Date();
+            const diffTime = Math.abs(now - date);
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+            if (diffDays < 7) return `${diffDays} day${diffDays !== 1 ? 's' : ''} ago`;
+            if (diffDays < 30) return `${Math.floor(diffDays / 7)} week${Math.floor(diffDays / 7) !== 1 ? 's' : ''} ago`;
+            if (diffDays < 365) return `${Math.floor(diffDays / 30)} month${Math.floor(diffDays / 30) !== 1 ? 's' : ''} ago`;
+            return `${Math.floor(diffDays / 365)} year${Math.floor(diffDays / 365) !== 1 ? 's' : ''} ago`;
+        }
+
+        // Show error message
+        function showError(message) {
+            const container = document.getElementById('profile-main-container');
+            if (container) {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 3rem 0;">
+                        <i class="fas fa-exclamation-circle" style="font-size: 3rem; color: var(--danger-color); margin-bottom: 1rem;"></i>
+                        <h2 style="color: var(--text-dark); margin-bottom: 0.5rem;">Error Loading Profile</h2>
+                        <p style="color: var(--text-gray);">${message}</p>
+                        <button onclick="location.reload()" style="margin-top: 1rem; padding: 0.75rem 1.5rem; background: var(--primary-color); color: white; border: none; border-radius: 0.5rem; cursor: pointer;">
+                            Try Again
+                        </button>
+                    </div>
+                `;
+            }
+        }
+
+        // Show loading state
+        function showLoading() {
+            const container = document.getElementById('profile-main-container');
+            if (container) {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 3rem 0;">
+                        <div style="display: inline-block; width: 3rem; height: 3rem; border: 4px solid var(--border-light); border-top-color: var(--primary-color); border-radius: 50%; animation: spin 1s linear infinite;"></div>
+                        <p style="color: var(--text-gray); margin-top: 1rem;">Loading doctor profile...</p>
+                    </div>
+                    <style>
+                        @keyframes spin {
+                            to { transform: rotate(360deg); }
+                        }
+                    </style>
+                `;
+            }
+        }
 
         // Get initials from name
         function getInitials(name) {
@@ -909,16 +966,25 @@
             return html;
         }
 
+        // Global doctor data variable
+        let doctorData = null;
+
         // Pagination state
         let currentReviewPage = 0;
         const reviewsPerPage = 3;
 
         // Render reviews
         function renderReviews() {
-            const doctor = STATIC_DOCTOR_DATA;
+            if (!doctorData || !doctorData.reviews || doctorData.reviews.length === 0) {
+                document.getElementById('reviews-list').innerHTML = `
+                    <p style="color: var(--text-gray); text-align: center; padding: 2rem 0;">No reviews yet.</p>
+                `;
+                return;
+            }
+
             const startIndex = currentReviewPage * reviewsPerPage;
             const endIndex = startIndex + reviewsPerPage;
-            const reviewsToShow = doctor.reviews.slice(startIndex, endIndex);
+            const reviewsToShow = doctorData.reviews.slice(startIndex, endIndex);
 
             let html = '';
             reviewsToShow.forEach(review => {
@@ -939,15 +1005,16 @@
             document.getElementById('reviews-list').innerHTML = html;
 
             // Render pagination
-            if (doctor.reviews.length > reviewsPerPage) {
+            if (doctorData.reviews.length > reviewsPerPage) {
                 renderPagination();
             }
         }
 
         // Render pagination controls
         function renderPagination() {
-            const doctor = STATIC_DOCTOR_DATA;
-            const totalPages = Math.ceil(doctor.reviews.length / reviewsPerPage);
+            if (!doctorData) return;
+
+            const totalPages = Math.ceil(doctorData.reviews.length / reviewsPerPage);
 
             let numbersHtml = '';
             for (let i = 0; i < totalPages; i++) {
@@ -988,7 +1055,8 @@
         }
 
         function nextPage() {
-            const totalPages = Math.ceil(STATIC_DOCTOR_DATA.reviews.length / reviewsPerPage);
+            if (!doctorData) return;
+            const totalPages = Math.ceil(doctorData.reviews.length / reviewsPerPage);
             if (currentReviewPage < totalPages - 1) {
                 currentReviewPage++;
                 renderReviews();
@@ -1000,9 +1068,163 @@
             renderReviews();
         }
 
-        // Initialize page
-        function initializePage() {
-            const doctor = STATIC_DOCTOR_DATA;
+        // Initialize page with API data
+        async function initializePage() {
+            if (!doctorUsername) {
+                showError('Invalid doctor profile URL.');
+                return;
+            }
+
+            // Show loading state
+            showLoading();
+
+            // Fetch doctor data
+            doctorData = await fetchDoctorData(doctorUsername);
+
+            if (!doctorData) {
+                return; // Error already shown
+            }
+
+            // Hide loading and show content
+            document.getElementById('profile-main-container').innerHTML = `
+                <div class="row">
+                    <!-- Left Column - Doctor Info -->
+                    <div class="col-lg-8">
+                        <!-- Profile Card -->
+                        <div class="profile-card">
+                            <div class="row">
+                                <!-- Avatar -->
+                                <div class="col-auto mb-3 mb-sm-0">
+                                    <div id="doctor-avatar"></div>
+                                </div>
+
+                                <!-- Info -->
+                                <div class="col">
+                                    <div class="d-flex justify-content-between align-items-start mb-2 flex-wrap gap-2">
+                                        <div>
+                                            <h1 style="font-size: 1.875rem; font-weight: bold; color: var(--text-dark); margin-bottom: 0.25rem;"
+                                                id="doctor-name"></h1>
+                                            <p style="color: var(--text-gray); font-size: 1.125rem; margin: 0;"
+                                                id="doctor-title"></p>
+                                        </div>
+                                        <div id="verified-badge"></div>
+                                    </div>
+
+                                    <!-- Rating -->
+                                    <div class="d-flex align-items-center gap-2 mb-3 flex-wrap" id="rating-section"></div>
+
+                                    <!-- Quick Info -->
+                                    <div class="row g-3" id="quick-info"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- About Section -->
+                        <div class="profile-card">
+                            <h2 class="section-title">About</h2>
+                            <p style="color: var(--text-dark); line-height: 1.6;" id="doctor-bio"></p>
+                        </div>
+
+                        <!-- Education -->
+                        <div class="profile-card">
+                            <h2 class="section-title">
+                                <i class="fas fa-graduation-cap"></i>
+                                Education
+                            </h2>
+                            <div id="education-list"></div>
+                        </div>
+
+                        <!-- Certifications hidden as requested -->
+
+                        <!-- Awards -->
+                        <div class="profile-card">
+                            <h2 class="section-title">
+                                <i class="fas fa-award"></i>
+                                Awards & Recognition
+                            </h2>
+                            <div id="awards-list"></div>
+                        </div>
+
+                        <!-- Hospital Affiliation -->
+                        <div class="profile-card">
+                            <h2 class="section-title">Hospital Affiliation</h2>
+                            <div id="hospital-info"></div>
+                        </div>
+
+                        <!-- Reviews Section -->
+                        <div class="profile-card">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h2 class="section-title mb-0">Patient Reviews</h2>
+                                <span style="font-size: 0.875rem; color: var(--text-gray);" id="reviews-count"></span>
+                            </div>
+                            <div id="reviews-list"></div>
+                            <div id="reviews-pagination"></div>
+                        </div>
+                    </div>
+
+                    <!-- Right Column - Booking Card -->
+                    <div class="col-lg-4">
+                        <div class="booking-card">
+                            <div class="consultation-fee">
+                                <span style="color: var(--text-gray);">Consultation Fee</span>
+                                <div class="fee-amount">
+                                    <i class="fas fa-money-bill-wave"></i>
+                                    <span id="consultation-fee"></span>
+                                </div>
+                            </div>
+
+                            <!-- Availability Badge commented out -->
+                            <!-- <div class="availability-badge" id="availability"></div> -->
+
+                            <button class="book-btn" id="book-consultation-btn">Book Consultation</button>
+
+                            <div style="border-top: 1px solid var(--border-color); padding-top: 1rem;">
+                                <h4 style="font-weight: 600; color: var(--text-dark); margin-bottom: 0.75rem;">What to
+                                    expect:</h4>
+                                <ul class="expectations-list">
+                                    <li>
+                                        <i class="fas fa-check-circle"></i>
+                                        <span>Secure video consultation</span>
+                                    </li>
+                                    <li>
+                                        <i class="fas fa-check-circle"></i>
+                                        <span>Digital prescription</span>
+                                    </li>
+                                    <li>
+                                        <i class="fas fa-check-circle"></i>
+                                        <span>Medical records access</span>
+                                    </li>
+                                    <li>
+                                        <i class="fas fa-check-circle"></i>
+                                        <span>Follow-up support</span>
+                                    </li>
+                                </ul>
+                            </div>
+
+                            <div class="terms-notice">
+                                <p>By booking, you agree to HealR's Terms of Service and Privacy Policy</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // Now populate the data
+            renderDoctorProfile(doctorData);
+
+            // Add event listeners (now that elements exist)
+            const bookBtn = document.getElementById('book-consultation-btn');
+            if (bookBtn) {
+                bookBtn.addEventListener('click', function () {
+                    // Use UID from fetched data for booking
+                    const patientAppUrl = `https://healr.ng/book/${doctorData.uid}`;
+                    window.location.href = patientAppUrl;
+                });
+            }
+        }
+
+        // Render doctor profile data
+        function renderDoctorProfile(doctor) {
 
             // Update page title
             document.title = `${doctor.name} - HealR Doctor Profile`;
@@ -1090,17 +1312,7 @@
             });
             document.getElementById('education-list').innerHTML = educationHtml;
 
-            // Render certifications
-            let certificationsHtml = '';
-            doctor.certifications.forEach(cert => {
-                certificationsHtml += `
-                    <div class="d-flex align-items-center gap-2 mb-2">
-                        <i class="fas fa-check-circle" style="color: var(--primary-color); font-size: 1rem;"></i>
-                        <span style="color: var(--text-dark); font-size: 0.9rem;">${cert}</span>
-                    </div>
-                `;
-            });
-            document.getElementById('certifications-list').innerHTML = certificationsHtml;
+            // Certifications rendering logic removed as per request
 
             // Render awards
             let awardsHtml = '';
@@ -1135,7 +1347,8 @@
 
             // Render booking info
             document.getElementById('consultation-fee').textContent = doctor.consultationFee;
-            document.getElementById('availability').textContent = doctor.availability;
+            // Availability badge commented out
+            // document.getElementById('availability').textContent = doctor.availability;
 
             // Render reviews
             document.getElementById('reviews-count').textContent = `${doctor.reviews.length} ${doctor.reviews.length === 1 ? 'review' : 'reviews'}`;
@@ -1145,12 +1358,7 @@
             document.getElementById('modal-doctor-name').textContent = doctor.name;
         }
 
-        // Book consultation handler
-        document.getElementById('book-consultation-btn').addEventListener('click', function () {
-            // TODO: Replace with actual patient app URL
-            const patientAppUrl = `https://patient.healr.ng/book/${doctorUid}`;
-            window.location.href = patientAppUrl;
-        });
+
 
         // Report modal handlers
         const reportModal = document.getElementById('report-modal');
@@ -1212,7 +1420,8 @@
             try {
                 // TODO: Replace with actual API call
                 console.log('Submitting report:', {
-                    doctorUid,
+                    doctorUid: doctorData.uid,
+                    doctorUsername: doctorData.username,
                     reason: reportReason.value,
                     details: reportDetails.value
                 });

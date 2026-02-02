@@ -4,19 +4,19 @@
 
 The doctor public profile is accessible at:
 ```
-/doctor/{doctor-uid}/profile
+/doctor/{doctor-username}/profile
 ```
 
 For example:
 ```
-https://healr.ng/doctor/6628c7df-8d42-4321-97cb-6f7a03777f43/profile
+https://healr.ng/doctor/johndoe/profile
 ```
 
 ## How It Works
 
-1. **URL Routing**: The `.htaccess` file routes all `/doctor/{uid}/profile` requests to `/doctor/profile.html`
-2. **Dynamic UID Extraction**: JavaScript in `profile.html` extracts the doctor UID from the URL path
-3. **API Integration**: The UID is used to fetch doctor data from your backend API (currently using static data)
+1. **URL Routing**: The `.htaccess` file routes all `/doctor/{username}/profile` requests to `/doctor/profile.html`
+2. **Dynamic Username Extraction**: JavaScript in `profile.html` extracts the doctor username from the URL path
+3. **API Integration**: The username is used to fetch doctor data from the API endpoint: `/api/v1/doctors/@{username}/`
 
 ## Implementation
 
@@ -30,18 +30,15 @@ The `profile.html` file contains:
 
 ## Next Steps
 
-To connect to your real API:
+The API is already integrated! The page now:
+- Fetches doctor data from `https://api.healr.ng/api/v1/doctors/@{username}/`
+- Transforms the API response to display all profile information
+- Handles loading states and errors gracefully
 
-1. Find the `TODO` comment in `profile.html` around line 800
-2. Replace the static `STATIC_DOCTOR_DATA` with an API call:
-   ```javascript
-   async function fetchDoctorData(doctorUid) {
-       const response = await fetch(`https://api.healr.ng/doctors/${doctorUid}/public-profile`);
-       const data = await response.json();
-       return data;
-   }
-   ```
-3. Update the initialization to use the fetched data
+To customize further:
+1. Update `API_BASE_URL` if your API is hosted elsewhere
+2. Add reviews endpoint integration when available
+3. Add consultation fee and availability from API data
 
 ## Features
 
