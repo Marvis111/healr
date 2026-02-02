@@ -1,0 +1,1450 @@
+<!doctype html>
+<html class="no-js" lang="en">
+
+<head>
+    <title>Doctor Profile - HealR Telemedicine</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="author" content="HealR">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <meta name="description"
+        content="Book a consultation with verified doctors on HealR, Nigeria's leading telemedicine platform.">
+    <!-- favicon icon -->
+    <link rel="shortcut icon" href="../assets/img/logo/fav.svg">
+    <link rel="apple-touch-icon" href="../assets/img/logo/fav.svg">
+    <link rel="apple-touch-icon" sizes="72x72" href="../assets/img/logo/fav.svg">
+    <meta name="theme-color" content="#4285f4">
+    <!-- style sheets and font icons -->
+    <link rel="stylesheet" href="../assets/css/vendors.min.css">
+    <link rel="stylesheet" href="../assets/css/icon.min.css">
+    <link rel="stylesheet" href="../assets/css/style1.min.css">
+    <link rel="stylesheet" href="../assets/css/responsive1.min.css">
+    <link rel="stylesheet" href="../assets/css/landing.css">
+
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --primary-color: #3898CB;
+            --primary-light: #67C1F1;
+            --primary-bg: #F0F9FF;
+            --success-color: #067D68;
+            --success-bg: #D1F0E7;
+            --warning-color: #F59E0B;
+            --warning-bg: #FFF4E5;
+            --danger-color: #EF4444;
+            --danger-bg: #FEE2E2;
+            --text-dark: #1C2023;
+            --text-gray: #7D8489;
+            --text-light-gray: #D1D5DB;
+            --border-color: #E5E7EB;
+            --border-light: #F3F4F6;
+            --star-color: #FFC107;
+        }
+
+        body {
+            background-color: #fff;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+        }
+
+        /* Doctor Profile Specific Styles */
+        .profile-avatar {
+            width: 112px;
+            height: 112px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid var(--primary-color);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        .profile-avatar-placeholder {
+            width: 112px;
+            height: 112px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            font-weight: bold;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        .verified-badge {
+            background-color: var(--success-bg);
+            color: var(--success-color);
+            padding: 0.35rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .profile-card {
+            background: white;
+            border: 1px solid var(--border-light);
+            border-radius: 0.75rem;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .info-item {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            color: var(--text-dark);
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        .info-item i {
+            color: var(--primary-color);
+            font-size: 0.95rem;
+        }
+
+        .star-rating {
+            display: flex;
+            gap: 0.2rem;
+        }
+
+        .star-filled {
+            color: var(--star-color);
+        }
+
+        .star-empty {
+            color: var(--border-color);
+        }
+
+        .section-title {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: var(--text-dark);
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .section-title i {
+            color: var(--primary-color);
+            font-size: 1rem;
+        }
+
+        .timeline-dot {
+            width: 0.4rem;
+            height: 0.4rem;
+            border-radius: 50%;
+            background-color: var(--primary-color);
+            margin-top: 0.35rem;
+            flex-shrink: 0;
+        }
+
+        .education-item,
+        .award-item {
+            display: flex;
+            gap: 0.6rem;
+            margin-bottom: 0.75rem;
+            align-items: flex-start;
+        }
+
+        .education-item:last-child,
+        .award-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .award-icon {
+            width: 2rem;
+            height: 2rem;
+            border-radius: 50%;
+            background-color: var(--warning-bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .award-icon i {
+            color: var(--warning-color);
+            font-size: 1rem;
+        }
+
+        .review-card {
+            border-bottom: 1px solid var(--border-light);
+            padding-bottom: 0.75rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .review-card:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+            margin-bottom: 0;
+        }
+
+        .pagination-controls {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 1rem;
+            padding-top: 0.75rem;
+            border-top: 1px solid var(--border-light);
+        }
+
+        .pagination-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.4rem 0.75rem;
+            border-radius: 0.4rem;
+            font-weight: 500;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+            background: transparent;
+            border: none;
+            color: var(--primary-color);
+            cursor: pointer;
+        }
+
+        .pagination-btn:hover:not(:disabled) {
+            background-color: var(--primary-bg);
+        }
+
+        .pagination-btn:active:not(:disabled) {
+            transform: scale(0.95);
+        }
+
+        .pagination-btn:disabled {
+            color: var(--text-light-gray);
+            cursor: not-allowed;
+        }
+
+        .pagination-numbers {
+            display: flex;
+            gap: 0.4rem;
+        }
+
+        .pagination-number {
+            width: 1.75rem;
+            height: 1.75rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 500;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+            cursor: pointer;
+            border: none;
+            background: transparent;
+            color: var(--text-gray);
+        }
+
+        .pagination-number.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .pagination-number:not(.active):hover {
+            background-color: var(--border-light);
+        }
+
+        .booking-card {
+            background: white;
+            border: 1px solid var(--border-light);
+            border-radius: 0.75rem;
+            padding: 1rem;
+            position: sticky;
+            top: 1.5rem;
+        }
+
+        .consultation-fee {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 0.75rem;
+        }
+
+        .fee-amount {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            font-size: 1.35rem;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .availability-badge {
+            background-color: var(--success-bg);
+            color: var(--success-color);
+            padding: 0.4rem 0.75rem;
+            border-radius: 0.4rem;
+            text-align: center;
+            font-weight: 600;
+            font-size: 0.85rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .book-btn {
+            width: 100%;
+            background: linear-gradient(to right, var(--primary-color), var(--primary-light));
+            color: white;
+            padding: 0.85rem;
+            border-radius: 0.6rem;
+            font-weight: bold;
+            font-size: 1rem;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 8px 20px rgba(56, 152, 203, 0.25);
+            transition: all 0.2s;
+            margin-bottom: 0.75rem;
+        }
+
+        .book-btn:hover {
+            box-shadow: 0 10px 25px rgba(56, 152, 203, 0.35);
+        }
+
+        .book-btn:active {
+            transform: scale(0.98);
+        }
+
+        .expectations-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .expectations-list li {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            margin-bottom: 0.4rem;
+            font-size: 0.82rem;
+            color: var(--text-gray);
+        }
+
+        .expectations-list i {
+            color: var(--primary-color);
+            margin-top: 0.1rem;
+            flex-shrink: 0;
+            font-size: 0.85rem;
+        }
+
+        .terms-notice {
+            margin-top: 1rem;
+            padding: 0.75rem;
+            background-color: var(--primary-bg);
+            border-radius: 0.4rem;
+            text-align: center;
+        }
+
+        .terms-notice p {
+            font-size: 0.7rem;
+            color: var(--text-gray);
+            margin: 0;
+        }
+
+        .report-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--danger-color);
+            font-size: 0.875rem;
+            font-weight: 500;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .report-btn:hover {
+            color: #DC2626;
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            padding: 1rem;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 1rem;
+            max-width: 32rem;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .modal-header-content {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+
+        .modal-icon {
+            width: 2rem;
+            height: 2rem;
+            border-radius: 50%;
+            background-color: var(--danger-bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-icon i {
+            color: var(--danger-color);
+            font-size: 1rem;
+        }
+
+        .modal-title {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: var(--text-dark);
+            margin: 0;
+        }
+
+        .modal-subtitle {
+            font-size: 0.8rem;
+            color: var(--text-gray);
+            margin: 0;
+        }
+
+        .modal-close {
+            background: transparent;
+            border: none;
+            color: var(--text-gray);
+            cursor: pointer;
+            font-size: 1.35rem;
+            padding: 0;
+            width: 1.75rem;
+            height: 1.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: color 0.2s;
+        }
+
+        .modal-close:hover {
+            color: var(--text-dark);
+        }
+
+        .modal-body {
+            padding: 1rem;
+        }
+
+        .form-group {
+            margin-bottom: 0.85rem;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 0.4rem;
+        }
+
+        .form-label .required {
+            color: var(--danger-color);
+        }
+
+        .form-select,
+        .form-textarea {
+            width: 100%;
+            padding: 0.6rem 0.85rem;
+            border: 1px solid var(--border-color);
+            border-radius: 0.4rem;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+
+        .form-select:focus,
+        .form-textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(56, 152, 203, 0.1);
+        }
+
+        .form-textarea {
+            resize: none;
+            font-family: inherit;
+        }
+
+        .form-hint {
+            font-size: 0.7rem;
+            color: var(--text-gray);
+            margin-top: 0.25rem;
+        }
+
+        .warning-box {
+            background-color: #FEF3C7;
+            border: 1px solid #FCD34D;
+            border-radius: 0.4rem;
+            padding: 0.75rem;
+            margin-top: 0.75rem;
+        }
+
+        .warning-box p {
+            font-size: 0.8rem;
+            color: #92400E;
+            margin: 0;
+        }
+
+        .modal-footer {
+            display: flex;
+            gap: 0.6rem;
+            padding: 1rem;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .btn-secondary,
+        .btn-danger {
+            flex: 1;
+            padding: 0.65rem 1.25rem;
+            border-radius: 0.4rem;
+            font-weight: 500;
+            font-size: 0.9rem;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-secondary {
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-gray);
+        }
+
+        .btn-secondary:hover:not(:disabled) {
+            background-color: #F9FAFB;
+        }
+
+        .btn-danger {
+            background-color: var(--danger-color);
+            color: white;
+        }
+
+        .btn-danger:hover:not(:disabled) {
+            background-color: #DC2626;
+        }
+
+        .btn-danger:active:not(:disabled) {
+            transform: scale(0.98);
+        }
+
+        .btn-secondary:disabled,
+        .btn-danger:disabled {
+            background-color: var(--text-light-gray);
+            color: #9CA3AF;
+            cursor: not-allowed;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 991px) {
+            .booking-card {
+                position: static;
+                margin-top: 1rem;
+            }
+        }
+
+        @media (max-width: 575px) {
+
+            .profile-avatar,
+            .profile-avatar-placeholder {
+                width: 88px;
+                height: 88px;
+                font-size: 2rem;
+            }
+
+            .section-title {
+                font-size: 1rem;
+            }
+
+            .profile-card {
+                padding: 0.85rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Header Component -->
+    <div id="header-component"></div>
+
+    <!-- Main Content -->
+    <div style="min-height: 100vh; background-color: white;">
+        <!-- Simple Header -->
+        <div
+            style="background-color: white; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); border-bottom: 1px solid var(--border-color);">
+            <div class="container" style="padding: 1rem 0;">
+                <div style="display: flex; align-items: center; gap: 0.75rem;">
+                    <img src="../assets/img/logo/logo.svg" alt="HealR Logo" style="height: 40px;"
+                        class="d-none d-md-block">
+                </div>
+            </div>
+        </div>
+
+        <!-- Profile Content -->
+        <div class="container" id="profile-main-container" style="padding: 1.25rem 0;">
+            <div style="text-align: center; padding: 3rem 0;">
+                <div
+                    style="display: inline-block; width: 3rem; height: 3rem; border: 4px solid var(--border-light); border-top-color: var(--primary-color); border-radius: 50%; animation: spin 1s linear infinite;">
+                </div>
+                <p style="color: var(--text-gray); margin-top: 1rem;">Loading doctor profile...</p>
+            </div>
+            <style>
+                @keyframes spin {
+                    to {
+                        transform: rotate(360deg);
+                    }
+                }
+            </style>
+        </div>
+
+        <!-- Footer -->
+        <div style="background-color: white; border-top: 1px solid var(--border-color); margin-top: 3rem;">
+            <div class="container" style="padding: 1.5rem 0;">
+                <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+                    <p style="color: var(--text-gray); font-size: 0.875rem; margin: 0;">
+                        © 2026 HealR. Quality healthcare, accessible to all Nigerians.
+                    </p>
+                    <button class="report-btn" id="report-doctor-btn">
+                        <i class="fas fa-flag"></i>
+                        Report Doctor
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Report Modal -->
+        <div class="modal-overlay" id="report-modal">
+            <div class="modal-content">
+                <!-- Modal Header -->
+                <div class="modal-header">
+                    <div class="modal-header-content">
+                        <div class="modal-icon">
+                            <i class="fas fa-flag"></i>
+                        </div>
+                        <div>
+                            <h3 class="modal-title">Report Doctor</h3>
+                            <p class="modal-subtitle" id="modal-doctor-name"></p>
+                        </div>
+                    </div>
+                    <button class="modal-close" id="close-modal-btn">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+
+                <!-- Modal Body -->
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label class="form-label">
+                            Reason for Report <span class="required">*</span>
+                        </label>
+                        <select class="form-select" id="report-reason">
+                            <option value="">Select a reason</option>
+                            <option value="unprofessional_conduct">Unprofessional Conduct</option>
+                            <option value="misdiagnosis">Misdiagnosis</option>
+                            <option value="poor_communication">Poor Communication</option>
+                            <option value="inappropriate_behavior">Inappropriate Behavior</option>
+                            <option value="billing_issues">Billing Issues</option>
+                            <option value="delayed_response">Delayed Response</option>
+                            <option value="quality_of_care">Quality of Care Concerns</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">
+                            Details <span class="required">*</span>
+                        </label>
+                        <textarea class="form-textarea" id="report-details" rows="6"
+                            placeholder="Please provide detailed information about your complaint..."></textarea>
+                        <p class="form-hint">Minimum 20 characters (<span id="char-count">0</span>/20)</p>
+                    </div>
+
+                    <div class="warning-box">
+                        <p>
+                            <strong>Note:</strong> All reports are reviewed by our medical compliance team.
+                            False reports may result in account suspension. Your report will be kept confidential.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Modal Footer -->
+                <div class="modal-footer">
+                    <button class="btn-secondary" id="cancel-report-btn">Cancel</button>
+                    <button class="btn-danger" id="submit-report-btn" disabled>Submit Report</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script type="text/javascript" src="../assets/js/jquery.js"></script>
+    <script type="text/javascript" src="../assets/js/vendors.min.js"></script>
+    <script type="text/javascript" src="../assets/js/main.js"></script>
+
+    <script>
+        // API Configuration
+        const API_BASE_URL = 'https://web-production-35b1.up.railway.app/api';
+
+        // Get doctor username from URL (supports both path and query param)
+        function getDoctorUsernameFromUrl() {
+            // First, check for query parameter ?username=xxx
+            const urlParams = new URLSearchParams(window.location.search);
+            const usernameParam = urlParams.get('username');
+            if (usernameParam) {
+                return usernameParam;
+            }
+
+            // Fallback to path-based extraction /doctor/{username}/profile
+            const pathParts = window.location.pathname.split('/');
+            const doctorIndex = pathParts.indexOf('doctor');
+            if (doctorIndex !== -1 && pathParts[doctorIndex + 1]) {
+                const potentialUsername = pathParts[doctorIndex + 1];
+                // Ignore if it's "profile.html" or similar
+                if (potentialUsername.includes('.html')) {
+                    return null;
+                }
+                return potentialUsername;
+            }
+
+            return null;
+        }
+
+        const doctorUsername = getDoctorUsernameFromUrl();
+        console.log('Viewing public profile for doctor username:', doctorUsername);
+
+        // Fetch doctor data from API
+        async function fetchDoctorData(username) {
+            try {
+                console.log('Fetching doctor data for username:', username);
+                console.log('API URL:', `${API_BASE_URL}/v1/doctors/@${username}/`);
+
+                // Check if running from file protocol (common cause of CORS errors)
+                if (window.location.protocol === 'file:') {
+                    console.warn('Running from file:// protocol. This often causes CORS errors. Please run via a local server (e.g., Live Server, http-server, or python -m http.server).');
+                }
+
+                // Simple GET request - removing Content-Type to avoid preflight OPTIONS check
+                let response;
+                try {
+                    response = await fetch(`${API_BASE_URL}/v1/doctors/@${username}/`, {
+                        method: 'GET',
+                        headers: { 'Accept': 'application/json' }
+                    });
+                } catch (directError) {
+                    console.warn('Direct API request failed, trying CORS proxy...', directError);
+                    // Fallback: Use a CORS Proxy (api.allorigins.win)
+                    response = await fetch(`https://api.allorigins.win/raw?url=${encodeURIComponent(`${API_BASE_URL}/v1/doctors/@${username}/`)}`);
+                }
+
+                console.log('Response status:', response.status);
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error('API Error Response:', errorText);
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const result = await response.json();
+                console.log('API Response:', result);
+
+                // Handle specific API error response
+                if (result.error || result.status === 'Not Found' || result.message === 'Failed') {
+                    const errorDetail = result.error?.detail || result.message || 'Doctor not found or unavailable';
+                    throw new Error(errorDetail);
+                }
+
+                if (!result.data) {
+                    throw new Error('Invalid API response: missing data object');
+                }
+
+                const data = result.data; // Extract nested data object
+
+                // Get primary specialty
+                const primarySpecialty = data.profile?.specialty;
+                const otherSpecialties = data.profile?.other_specialties || [];
+
+                // Format consultation fee from specialty
+                const consultationFee = primarySpecialty?.fee
+                    ? `₦${primarySpecialty.fee.toLocaleString()}`
+                    : 'Contact for pricing';
+
+                // Calculate years of experience from date of birth (rough estimate)
+                const yearsOfExperience = calculateExperienceFromDOB(data.date_of_birth);
+
+                // Get location
+                const location = data.state && data.country
+                    ? `${data.state}, ${data.country}`
+                    : data.country || 'Nigeria';
+
+                // Helper to capitalize words
+                const capitalize = (str) => str ? str.replace(/\b\w/g, c => c.toUpperCase()) : '';
+
+                // Collect and format all specialties
+                let allSpecialties = [];
+                if (primarySpecialty?.name) allSpecialties.push(primarySpecialty.name);
+                otherSpecialties.forEach(s => {
+                    if (s.name) allSpecialties.push(s.name);
+                });
+
+                // Remove duplicates, capitalize, and join
+                const displaySpecialties = [...new Set(allSpecialties)]
+                    .map(s => capitalize(s))
+                    .join(', ');
+
+                // Transform API data to match our expected format
+                return {
+                    uid: data.uid,
+                    username: data.username,
+                    name: `Dr. ${data.first_name} ${data.last_name}`,
+                    fullName: data.full_name,
+                    title: capitalize(primarySpecialty?.name) || 'Medical Doctor',
+                    specialization: displaySpecialties || 'General Practice',
+                    otherSpecialties: otherSpecialties.map(s => capitalize(s.name)),
+                    experience: yearsOfExperience,
+                    regNumber: data.profile?.reg_number || 'Not Available',
+                    folioNumber: data.profile?.folio_number || 'Not Available',
+                    hospital: 'Licensed Medical Practitioner', // Update if hospital data is available
+                    location: location,
+                    avatar: data.avatar_url || '',
+                    bio: data.profile?.bio || 'Not Available',
+                    languages: data.profile?.languages && data.profile.languages.length > 0
+                        ? data.profile.languages
+                        : ['English'],
+                    consultationFee: consultationFee,
+                    rating: parseFloat(data.average_rating) || 0,
+                    totalConsultations: data.total_consultations || 0,
+                    totalReviews: data.reviews?.length || 0,
+                    verified: data.profile?.profile_locked || false,
+                    availability: 'Available for consultation',
+                    education: (data.profile?.education || []).map(edu => ({
+                        degree: edu.degree || 'Medical Degree',
+                        institution: edu.institution || 'Medical Institution',
+                        year: edu.year || 'N/A'
+                    })),
+                    awards: (data.profile?.awards || []).map(award => ({
+                        title: award.title || award.name || award,
+                        organization: award.organization || 'Medical Association',
+                        year: award.year || new Date().getFullYear().toString()
+                    })),
+                    // Certifications removed as per request
+                    certifications: [],
+                    reviews: (data.reviews || []).map(review => ({
+                        patientName: review.patient_name || 'Anonymous',
+                        rating: review.rating || 5,
+                        date: formatReviewDate(review.created_at),
+                        comment: review.comment || review.review || ''
+                    }))
+                };
+            } catch (error) {
+                console.error('Error fetching doctor data:', error);
+
+                // Check if it's a CORS error
+                if (error.message.includes('Failed to fetch') || error.name === 'TypeError') {
+                    let errorMessage = 'Unable to connect to the server. This might be a CORS issue.';
+
+                    if (window.location.protocol === 'file:') {
+                        errorMessage += ' <b>You are running this file directly.</b> Browsers block API requests from local files. Please run this page using a local server (like "Live Server" in VS Code).';
+                    } else {
+                        errorMessage += ' Please check your API configuration or network connection.';
+                    }
+
+                    showError(errorMessage);
+                } else {
+                    showError(`Unable to load doctor profile: ${error.message}`);
+                }
+
+                return null;
+            }
+        }
+
+        // Calculate years of experience from date of birth (rough estimate)
+        function calculateExperienceFromDOB(dob) {
+            if (!dob) return '5+ years';
+            const birthYear = new Date(dob).getFullYear();
+            const currentYear = new Date().getFullYear();
+            const age = currentYear - birthYear;
+            // Assume they started practicing around age 25
+            const yearsOfPractice = Math.max(0, age - 25);
+            return yearsOfPractice > 0 ? `${yearsOfPractice}+ years` : 'Licensed practitioner';
+        }
+
+        // Format review date
+        function formatReviewDate(dateString) {
+            if (!dateString) return 'Recently';
+            const date = new Date(dateString);
+            const now = new Date();
+            const diffTime = Math.abs(now - date);
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+            if (diffDays < 7) return `${diffDays} day${diffDays !== 1 ? 's' : ''} ago`;
+            if (diffDays < 30) return `${Math.floor(diffDays / 7)} week${Math.floor(diffDays / 7) !== 1 ? 's' : ''} ago`;
+            if (diffDays < 365) return `${Math.floor(diffDays / 30)} month${Math.floor(diffDays / 30) !== 1 ? 's' : ''} ago`;
+            return `${Math.floor(diffDays / 365)} year${Math.floor(diffDays / 365) !== 1 ? 's' : ''} ago`;
+        }
+
+        // Show error message
+        function showError(message) {
+            const container = document.getElementById('profile-main-container');
+            if (container) {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 3rem 0;">
+                        <i class="fas fa-exclamation-circle" style="font-size: 3rem; color: var(--danger-color); margin-bottom: 1rem;"></i>
+                        <h2 style="color: var(--text-dark); margin-bottom: 0.5rem;">Error Loading Profile</h2>
+                        <p style="color: var(--text-gray);">${message}</p>
+                        <button onclick="location.reload()" style="margin-top: 1rem; padding: 0.75rem 1.5rem; background: var(--primary-color); color: white; border: none; border-radius: 0.5rem; cursor: pointer;">
+                            Try Again
+                        </button>
+                    </div>
+                `;
+            }
+        }
+
+        // Show loading state
+        function showLoading() {
+            const container = document.getElementById('profile-main-container');
+            if (container) {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 3rem 0;">
+                        <div style="display: inline-block; width: 3rem; height: 3rem; border: 4px solid var(--border-light); border-top-color: var(--primary-color); border-radius: 50%; animation: spin 1s linear infinite;"></div>
+                        <p style="color: var(--text-gray); margin-top: 1rem;">Loading doctor profile...</p>
+                    </div>
+                    <style>
+                        @keyframes spin {
+                            to { transform: rotate(360deg); }
+                        }
+                    </style>
+                `;
+            }
+        }
+
+        // Get initials from name
+        function getInitials(name) {
+            return name
+                .split(" ")
+                .map(n => n[0])
+                .join("")
+                .substring(0, 2)
+                .toUpperCase();
+        }
+
+        // Render star rating
+        function renderStars(rating) {
+            let html = '<div class="star-rating">';
+            for (let i = 0; i < 5; i++) {
+                if (i < rating) {
+                    html += '<i class="fas fa-star star-filled"></i>';
+                } else {
+                    html += '<i class="fas fa-star star-empty"></i>';
+                }
+            }
+            html += '</div>';
+            return html;
+        }
+
+        // Global doctor data variable
+        let doctorData = null;
+
+        // Pagination state
+        let currentReviewPage = 0;
+        const reviewsPerPage = 3;
+
+        // Render reviews
+        function renderReviews() {
+            if (!doctorData || !doctorData.reviews || doctorData.reviews.length === 0) {
+                document.getElementById('reviews-list').innerHTML = `
+                    <p style="color: var(--text-gray); text-align: center; padding: 2rem 0;">No reviews yet.</p>
+                `;
+                return;
+            }
+
+            const startIndex = currentReviewPage * reviewsPerPage;
+            const endIndex = startIndex + reviewsPerPage;
+            const reviewsToShow = doctorData.reviews.slice(startIndex, endIndex);
+
+            let html = '';
+            reviewsToShow.forEach(review => {
+                html += `
+                    <div class="review-card">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <div>
+                                <p style="font-weight: 600; color: var(--text-dark); margin-bottom: 0.25rem;">${review.patientName}</p>
+                                ${renderStars(review.rating)}
+                            </div>
+                            <span style="font-size: 0.75rem; color: var(--text-gray);">${review.date}</span>
+                        </div>
+                        <p style="color: var(--text-dark); font-size: 0.875rem; line-height: 1.5; margin: 0;">${review.comment}</p>
+                    </div>
+                `;
+            });
+
+            document.getElementById('reviews-list').innerHTML = html;
+
+            // Render pagination
+            if (doctorData.reviews.length > reviewsPerPage) {
+                renderPagination();
+            }
+        }
+
+        // Render pagination controls
+        function renderPagination() {
+            if (!doctorData) return;
+
+            const totalPages = Math.ceil(doctorData.reviews.length / reviewsPerPage);
+
+            let numbersHtml = '';
+            for (let i = 0; i < totalPages; i++) {
+                numbersHtml += `
+                    <button class="pagination-number ${i === currentReviewPage ? 'active' : ''}" onclick="goToPage(${i})">
+                        ${i + 1}
+                    </button>
+                `;
+            }
+
+            const html = `
+                <div class="pagination-controls">
+                    <button class="pagination-btn" onclick="previousPage()" ${currentReviewPage === 0 ? 'disabled' : ''}>
+                        <i class="fas fa-chevron-left"></i>
+                        <span>Previous</span>
+                    </button>
+
+                    <div class="pagination-numbers">
+                        ${numbersHtml}
+                    </div>
+
+                    <button class="pagination-btn" onclick="nextPage()" ${currentReviewPage >= totalPages - 1 ? 'disabled' : ''}>
+                        <span>Next</span>
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+            `;
+
+            document.getElementById('reviews-pagination').innerHTML = html;
+        }
+
+        // Pagination functions
+        function previousPage() {
+            if (currentReviewPage > 0) {
+                currentReviewPage--;
+                renderReviews();
+            }
+        }
+
+        function nextPage() {
+            if (!doctorData) return;
+            const totalPages = Math.ceil(doctorData.reviews.length / reviewsPerPage);
+            if (currentReviewPage < totalPages - 1) {
+                currentReviewPage++;
+                renderReviews();
+            }
+        }
+
+        function goToPage(page) {
+            currentReviewPage = page;
+            renderReviews();
+        }
+
+        // Initialize page with API data
+        async function initializePage() {
+            if (!doctorUsername) {
+                showError('Invalid doctor profile URL.');
+                return;
+            }
+
+            // Show loading state
+            showLoading();
+
+            // Fetch doctor data
+            doctorData = await fetchDoctorData(doctorUsername);
+
+            if (!doctorData) {
+                return; // Error already shown
+            }
+
+            // Hide loading and show content
+            document.getElementById('profile-main-container').innerHTML = `
+                <div class="row">
+                    <!-- Left Column - Doctor Info -->
+                    <div class="col-lg-8">
+                        <!-- Profile Card -->
+                        <div class="profile-card">
+                            <div class="row">
+                                <!-- Avatar -->
+                                <div class="col-auto mb-3 mb-sm-0">
+                                    <div id="doctor-avatar"></div>
+                                </div>
+
+                                <!-- Info -->
+                                <div class="col">
+                                    <div class="d-flex justify-content-between align-items-start mb-2 flex-wrap gap-2">
+                                        <div>
+                                            <h1 style="font-size: 1.875rem; font-weight: bold; color: var(--text-dark); margin-bottom: 0.25rem;"
+                                                id="doctor-name"></h1>
+                                            <p style="color: var(--text-gray); font-size: 1.125rem; margin: 0;"
+                                                id="doctor-title"></p>
+                                        </div>
+                                        <div id="verified-badge"></div>
+                                    </div>
+
+                                    <!-- Rating -->
+                                    <div class="d-flex align-items-center gap-2 mb-3 flex-wrap" id="rating-section"></div>
+
+                                    <!-- Quick Info -->
+                                    <div class="row g-3" id="quick-info"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- About Section -->
+                        <div class="profile-card">
+                            <h2 class="section-title">About</h2>
+                            <p style="color: var(--text-dark); line-height: 1.6;" id="doctor-bio"></p>
+                        </div>
+
+                        <!-- Education -->
+                        <div class="profile-card">
+                            <h2 class="section-title">
+                                <i class="fas fa-graduation-cap"></i>
+                                Education
+                            </h2>
+                            <div id="education-list"></div>
+                        </div>
+
+                        <!-- Certifications hidden as requested -->
+
+                        <!-- Awards -->
+                        <div class="profile-card">
+                            <h2 class="section-title">
+                                <i class="fas fa-award"></i>
+                                Awards & Recognition
+                            </h2>
+                            <div id="awards-list"></div>
+                        </div>
+
+                        <!-- Hospital Affiliation -->
+                        <div class="profile-card">
+                            <h2 class="section-title">Hospital Affiliation</h2>
+                            <div id="hospital-info"></div>
+                        </div>
+
+                        <!-- Reviews Section -->
+                        <div class="profile-card">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h2 class="section-title mb-0">Patient Reviews</h2>
+                                <span style="font-size: 0.875rem; color: var(--text-gray);" id="reviews-count"></span>
+                            </div>
+                            <div id="reviews-list"></div>
+                            <div id="reviews-pagination"></div>
+                        </div>
+                    </div>
+
+                    <!-- Right Column - Booking Card -->
+                    <div class="col-lg-4">
+                        <div class="booking-card">
+                            <div class="consultation-fee">
+                                <span style="color: var(--text-gray);">Consultation Fee</span>
+                                <div class="fee-amount">
+                                    <i class="fas fa-money-bill-wave"></i>
+                                    <span id="consultation-fee"></span>
+                                </div>
+                            </div>
+
+                            <!-- Availability Badge commented out -->
+                            <!-- <div class="availability-badge" id="availability"></div> -->
+
+                            <button class="book-btn" id="book-consultation-btn">Book Consultation</button>
+
+                            <div style="border-top: 1px solid var(--border-color); padding-top: 1rem;">
+                                <h4 style="font-weight: 600; color: var(--text-dark); margin-bottom: 0.75rem;">What to
+                                    expect:</h4>
+                                <ul class="expectations-list">
+                                    <li>
+                                        <i class="fas fa-check-circle"></i>
+                                        <span>Secure video consultation</span>
+                                    </li>
+                                    <li>
+                                        <i class="fas fa-check-circle"></i>
+                                        <span>Digital prescription</span>
+                                    </li>
+                                    <li>
+                                        <i class="fas fa-check-circle"></i>
+                                        <span>Medical records access</span>
+                                    </li>
+                                    <li>
+                                        <i class="fas fa-check-circle"></i>
+                                        <span>Follow-up support</span>
+                                    </li>
+                                </ul>
+                            </div>
+
+                            <div class="terms-notice">
+                                <p>By booking, you agree to HealR's Terms of Service and Privacy Policy</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // Now populate the data
+            renderDoctorProfile(doctorData);
+
+            // Add event listeners (now that elements exist)
+            const bookBtn = document.getElementById('book-consultation-btn');
+            if (bookBtn) {
+                bookBtn.addEventListener('click', function () {
+                    // Use UID from fetched data for booking
+                    const patientAppUrl = `https://healr.ng/book/${doctorData.uid}`;
+                    window.location.href = patientAppUrl;
+                });
+            }
+        }
+
+        // Render doctor profile data
+        function renderDoctorProfile(doctor) {
+
+            // Update page title
+            document.title = `${doctor.name} - HealR Doctor Profile`;
+
+            // Render avatar
+            if (doctor.avatar) {
+                document.getElementById('doctor-avatar').innerHTML = `
+                    <img src="${doctor.avatar}" alt="${doctor.name}" class="profile-avatar">
+                `;
+            } else {
+                document.getElementById('doctor-avatar').innerHTML = `
+                    <div class="profile-avatar-placeholder">${getInitials(doctor.name)}</div>
+                `;
+            }
+
+            // Render basic info
+            document.getElementById('doctor-name').textContent = doctor.name;
+            document.getElementById('doctor-title').textContent = doctor.title;
+
+            // Render verified badge
+            if (doctor.verified) {
+                document.getElementById('verified-badge').innerHTML = `
+                    <div class="verified-badge">
+                        <i class="fas fa-check-circle"></i>
+                        Verified
+                    </div>
+                `;
+            }
+
+            // Render rating
+            document.getElementById('rating-section').innerHTML = `
+                <div class="d-flex align-items-center gap-1">
+                    <i class="fas fa-star star-filled" style="font-size: 1.25rem;"></i>
+                    <span style="font-size: 1.25rem; font-weight: bold; color: var(--text-dark);">${doctor.rating}</span>
+                </div>
+                <span style="color: var(--text-gray);">(${doctor.totalReviews} reviews)</span>
+                <span style="color: var(--text-gray);">•</span>
+                <span style="color: var(--text-gray);">${doctor.totalConsultations} consultations</span>
+            `;
+
+            // Render quick info
+            document.getElementById('quick-info').innerHTML = `
+                <div class="col-sm-6">
+                    <div class="info-item">
+                        <i class="fas fa-briefcase"></i>
+                        <span>${doctor.specialization}</span>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="info-item">
+                        <i class="fas fa-graduation-cap"></i>
+                        <span>${doctor.experience} experience</span>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="info-item">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <span>${doctor.location}</span>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="info-item">
+                        <i class="fas fa-language"></i>
+                        <span>${doctor.languages.join(", ")}</span>
+                    </div>
+                </div>
+            `;
+
+            // Render bio
+            document.getElementById('doctor-bio').textContent = doctor.bio;
+
+            // Render education
+            let educationHtml = '';
+            doctor.education.forEach(edu => {
+                educationHtml += `
+                    <div class="education-item">
+                        <div class="timeline-dot"></div>
+                        <div>
+                            <p style="font-weight: 600; color: var(--text-dark); margin-bottom: 0.2rem; font-size: 0.95rem;">${edu.degree}</p>
+                            <p style="font-size: 0.82rem; color: var(--text-gray); margin-bottom: 0.1rem;">${edu.institution}</p>
+                            <p style="font-size: 0.72rem; color: var(--text-gray); margin: 0;">${edu.year}</p>
+                        </div>
+                    </div>
+                `;
+            });
+            document.getElementById('education-list').innerHTML = educationHtml;
+
+            // Certifications rendering logic removed as per request
+
+            // Render awards
+            let awardsHtml = '';
+            doctor.awards.forEach(award => {
+                awardsHtml += `
+                    <div class="award-item">
+                        <div class="award-icon">
+                            <i class="fas fa-award"></i>
+                        </div>
+                        <div>
+                            <p style="font-weight: 600; color: var(--text-dark); margin-bottom: 0.2rem; font-size: 0.95rem;">${award.title}</p>
+                            <p style="font-size: 0.82rem; color: var(--text-gray); margin-bottom: 0.1rem;">${award.organization}</p>
+                            <p style="font-size: 0.72rem; color: var(--text-gray); margin: 0;">${award.year}</p>
+                        </div>
+                    </div>
+                `;
+            });
+            document.getElementById('awards-list').innerHTML = awardsHtml;
+
+            // Render hospital info
+            document.getElementById('hospital-info').innerHTML = `
+                <div class="d-flex align-items-center gap-3">
+                    <div style="width: 3rem; height: 3rem; border-radius: 50%; background-color: var(--primary-bg); display: flex; align-items: center; justify-content: center;">
+                        <i class="fas fa-briefcase" style="color: var(--primary-color); font-size: 1.25rem;"></i>
+                    </div>
+                    <div>
+                        <p style="font-weight: 600; color: var(--text-dark); margin-bottom: 0.25rem;">${doctor.hospital}</p>
+                        <p style="font-size: 0.875rem; color: var(--text-gray); margin: 0;">${doctor.location}</p>
+                    </div>
+                </div>
+            `;
+
+            // Render booking info
+            document.getElementById('consultation-fee').textContent = doctor.consultationFee;
+            // Availability badge commented out
+            // document.getElementById('availability').textContent = doctor.availability;
+
+            // Render reviews
+            document.getElementById('reviews-count').textContent = `${doctor.reviews.length} ${doctor.reviews.length === 1 ? 'review' : 'reviews'}`;
+            renderReviews();
+
+            // Set modal doctor name
+            document.getElementById('modal-doctor-name').textContent = doctor.name;
+        }
+
+
+
+        // Report modal handlers
+        const reportModal = document.getElementById('report-modal');
+        const reportBtn = document.getElementById('report-doctor-btn');
+        const closeModalBtn = document.getElementById('close-modal-btn');
+        const cancelReportBtn = document.getElementById('cancel-report-btn');
+        const submitReportBtn = document.getElementById('submit-report-btn');
+        const reportReason = document.getElementById('report-reason');
+        const reportDetails = document.getElementById('report-details');
+        const charCount = document.getElementById('char-count');
+
+        // Open modal
+        reportBtn.addEventListener('click', function () {
+            reportModal.classList.add('active');
+        });
+
+        // Close modal
+        function closeModal() {
+            reportModal.classList.remove('active');
+            reportReason.value = '';
+            reportDetails.value = '';
+            charCount.textContent = '0';
+            submitReportBtn.disabled = true;
+        }
+
+        closeModalBtn.addEventListener('click', closeModal);
+        cancelReportBtn.addEventListener('click', closeModal);
+
+        // Close modal on overlay click
+        reportModal.addEventListener('click', function (e) {
+            if (e.target === reportModal) {
+                closeModal();
+            }
+        });
+
+        // Update character count and validate
+        reportDetails.addEventListener('input', function () {
+            const length = this.value.length;
+            charCount.textContent = length;
+
+            // Enable submit button if both fields are filled and details >= 20 chars
+            submitReportBtn.disabled = !(reportReason.value && length >= 20);
+        });
+
+        reportReason.addEventListener('change', function () {
+            submitReportBtn.disabled = !(this.value && reportDetails.value.length >= 20);
+        });
+
+        // Submit report
+        submitReportBtn.addEventListener('click', async function () {
+            if (!reportReason.value || reportDetails.value.length < 20) {
+                alert('Please select a reason and provide details for your report.');
+                return;
+            }
+
+            submitReportBtn.disabled = true;
+            submitReportBtn.textContent = 'Submitting...';
+
+            try {
+                // TODO: Replace with actual API call
+                console.log('Submitting report:', {
+                    doctorUid: doctorData.uid,
+                    doctorUsername: doctorData.username,
+                    reason: reportReason.value,
+                    details: reportDetails.value
+                });
+
+                // Simulate API call
+                await new Promise(resolve => setTimeout(resolve, 1500));
+
+                alert('Thank you for your report. We will review it and take appropriate action.');
+                closeModal();
+            } catch (error) {
+                console.error('Error submitting report:', error);
+                alert('Failed to submit report. Please try again later.');
+            } finally {
+                submitReportBtn.disabled = false;
+                submitReportBtn.textContent = 'Submit Report';
+            }
+        });
+
+        // Initialize page on load
+        document.addEventListener('DOMContentLoaded', function () {
+            initializePage();
+        });
+    </script>
+</body>
+
+</html>
