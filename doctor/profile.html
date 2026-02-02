@@ -24,6 +24,13 @@
     <!-- Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@600;700;800&display=swap"
+        rel="stylesheet">
+
     <style>
         :root {
             --primary-color: #3898CB;
@@ -35,17 +42,40 @@
             --warning-bg: #FFF4E5;
             --danger-color: #EF4444;
             --danger-bg: #FEE2E2;
-            --text-dark: #1C2023;
-            --text-gray: #7D8489;
-            --text-light-gray: #D1D5DB;
-            --border-color: #E5E7EB;
-            --border-light: #F3F4F6;
-            --star-color: #FFC107;
+            --text-dark: #0f172a;
+            --text-gray: #64748b;
+            --text-light-gray: #94a3b8;
+            --border-color: #e2e8f0;
+            --border-light: #f1f5f9;
+            --star-color: #fbbf24;
+            --font-body: 'Inter', system-ui, -apple-system, sans-serif;
+            --font-heading: 'Outfit', system-ui, -apple-system, sans-serif;
         }
 
         body {
-            background-color: #fff;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: #f8fafc;
+            font-family: var(--font-body);
+            color: #334155;
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        h1,
+        h2,
+        h3 {
+            font-family: var(--font-heading);
+            color: var(--text-dark);
+            letter-spacing: -0.02em;
+            font-weight: 700;
+        }
+
+        h4,
+        h5,
+        h6 {
+            font-family: var(--font-heading);
+            color: var(--text-dark);
+            font-weight: 600;
         }
 
         /* Doctor Profile Specific Styles */
@@ -86,19 +116,20 @@
 
         .profile-card {
             background: white;
-            border: 1px solid var(--border-light);
-            border-radius: 0.75rem;
-            padding: 1rem;
-            margin-bottom: 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05), 0 2px 4px -2px rgb(0 0 0 / 0.05);
         }
 
         .info-item {
             display: flex;
             align-items: center;
-            gap: 0.4rem;
+            gap: 0.6rem;
             color: var(--text-dark);
             font-weight: 500;
-            font-size: 0.9rem;
+            font-size: 0.95rem;
         }
 
         .info-item i {
@@ -710,7 +741,7 @@
     <script>
         // API Configuration
 
-        const API_BASE_URL = 'https://prod.healr.ng/api'; //'https://web-production-35b1.up.railway.app/api';
+        const API_BASE_URL = 'https://web-production-35b1.up.railway.app/api'; // 'https://prod.healr.ng/api';
 
         // Get doctor username from URL (supports both path and query param)
         function getDoctorUsernameFromUrl() {
@@ -742,9 +773,6 @@
         // Fetch doctor data from API
         async function fetchDoctorData(username) {
             try {
-                console.log('Fetching doctor data for username:', username);
-                console.log('API URL:', `${API_BASE_URL}/v1/doctors/@${username}/`);
-
                 // Check if running from file protocol (common cause of CORS errors)
                 if (window.location.protocol === 'file:') {
                     console.warn('Running from file:// protocol. This often causes CORS errors. Please run via a local server (e.g., Live Server, http-server, or python -m http.server).');
@@ -1142,9 +1170,9 @@
                                 <div class="col">
                                     <div class="d-flex justify-content-between align-items-start mb-2 flex-wrap gap-2">
                                         <div>
-                                            <h1 style="font-size: 1.875rem; font-weight: bold; color: var(--text-dark); margin-bottom: 0.25rem;"
+                                            <h1 style="font-size: 2.25rem; font-weight: 800; color: var(--text-dark); margin-bottom: 0.25rem;"
                                                 id="doctor-name"></h1>
-                                            <p style="color: var(--text-gray); font-size: 1.125rem; margin: 0;"
+                                            <p style="color: var(--text-gray); font-size: 1.125rem; margin: 0; font-weight: 500;"
                                                 id="doctor-title"></p>
                                         </div>
                                         <div id="verified-badge"></div>
@@ -1162,7 +1190,7 @@
                         <!-- About Section -->
                         <div class="profile-card">
                             <h2 class="section-title">About</h2>
-                            <p style="color: var(--text-dark); line-height: 1.6;" id="doctor-bio"></p>
+                            <p style="color: var(--text-gray); line-height: 1.8; font-size: 1.05rem;" id="doctor-bio"></p>
                         </div>
 
                         <!-- Education -->
