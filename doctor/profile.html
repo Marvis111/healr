@@ -24,6 +24,13 @@
     <!-- Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@600;700;800&display=swap"
+        rel="stylesheet">
+
     <style>
         :root {
             --primary-color: #3898CB;
@@ -35,20 +42,69 @@
             --warning-bg: #FFF4E5;
             --danger-color: #EF4444;
             --danger-bg: #FEE2E2;
-            --text-dark: #1C2023;
-            --text-gray: #7D8489;
-            --text-light-gray: #D1D5DB;
-            --border-color: #E5E7EB;
-            --border-light: #F3F4F6;
-            --star-color: #FFC107;
+            --text-dark: #0f172a;
+            --text-gray: #64748b;
+            --text-light-gray: #94a3b8;
+            --border-color: #e2e8f0;
+            --border-light: #f1f5f9;
+            --star-color: #fbbf24;
+            --font-body: 'Inter', system-ui, -apple-system, sans-serif;
+            --font-heading: 'Outfit', system-ui, -apple-system, sans-serif;
         }
 
         body {
-            background-color: #fff;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: #f8fafc;
+            font-family: var(--font-body);
+            color: #334155;
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        h1,
+        h2,
+        h3 {
+            font-family: var(--font-heading);
+            color: var(--text-dark);
+            letter-spacing: -0.02em;
+            font-weight: 700;
+        }
+
+        h4,
+        h5,
+        h6 {
+            font-family: var(--font-heading);
+            color: var(--text-dark);
+            font-weight: 600;
         }
 
         /* Doctor Profile Specific Styles */
+        @keyframes ripple {
+            0% {
+                width: 60px;
+                height: 60px;
+                opacity: 1;
+            }
+
+            100% {
+                width: 140px;
+                height: 140px;
+                opacity: 0;
+            }
+        }
+
+        @keyframes bounce-soft {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+
         .profile-avatar {
             width: 112px;
             height: 112px;
@@ -84,21 +140,79 @@
             gap: 0.25rem;
         }
 
+        /* Responsive Profile Card Adjustments */
+        @media (max-width: 576px) {
+            .profile-header-card {
+                flex-direction: column;
+                text-align: center;
+                align-items: center;
+            }
+
+            .profile-header-card #doctor-avatar {
+                margin-bottom: 1.25rem;
+            }
+
+            #doctor-name {
+                font-size: 1.75rem !important;
+                line-height: 1.2;
+            }
+
+            #rating-section {
+                justify-content: center;
+            }
+
+            #doctor-credentials {
+                display: flex;
+                justify-content: center;
+                width: 100%;
+            }
+
+            .credentials-badges {
+                justify-content: center;
+            }
+
+            .profile-avatar {
+                width: 128px;
+                height: 128px;
+            }
+
+            .profile-avatar-placeholder {
+                width: 128px;
+                height: 128px;
+                font-size: 3rem;
+            }
+
+            .profile-info-row {
+                justify-content: center !important;
+                margin-top: 0.5rem;
+            }
+
+            .info-item {
+                justify-content: center;
+                text-align: center;
+            }
+
+            #quick-info {
+                text-align: center;
+            }
+        }
+
         .profile-card {
             background: white;
-            border: 1px solid var(--border-light);
-            border-radius: 0.75rem;
-            padding: 1rem;
-            margin-bottom: 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05), 0 2px 4px -2px rgb(0 0 0 / 0.05);
         }
 
         .info-item {
             display: flex;
             align-items: center;
-            gap: 0.4rem;
+            gap: 0.6rem;
             color: var(--text-dark);
             font-weight: 500;
-            font-size: 0.9rem;
+            font-size: 0.95rem;
         }
 
         .info-item i {
@@ -607,23 +721,39 @@
 
         <!-- Profile Content -->
         <div class="container" id="profile-main-container" style="padding: 1.25rem 0;">
-            <div style="text-align: center; padding: 3rem 0;">
-                <div
-                    style="display: inline-block; width: 3rem; height: 3rem; border: 4px solid var(--border-light); border-top-color: var(--primary-color); border-radius: 50%; animation: spin 1s linear infinite;">
+            <div id="preloader-container"
+                style="text-align: center; padding: 6rem 1rem; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                <div class="loader-logo-container" style="position: relative; margin-bottom: 2rem;">
+                    <div class="loader-pulse"
+                        style="width: 80px; height: 80px; border-radius: 50%; background: var(--primary-bg); position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); animation: ripple 2s ease-out infinite;">
+                    </div>
+                    <img src="/assets/img/logo/fav.svg" alt="Loading..."
+                        style="width: 50px; height: 50px; position: relative; z-index: 10; animation: bounce-soft 2s ease-in-out infinite;">
                 </div>
-                <p style="color: var(--text-gray); margin-top: 1rem;">Loading doctor profile...</p>
+                <h3
+                    style="font-family: var(--font-heading); font-size: 1.25rem; font-weight: 600; color: var(--text-dark); margin: 0;">
+                    Securing Your Connection</h3>
+                <p style="color: var(--text-gray); font-size: 0.95rem; margin-top: 0.5rem;">Fetching the best healthcare
+                    for you...</p>
+
+                <!-- Skeleton Preview (Optional/Subtle) -->
+                <div style="margin-top: 3rem; width: 100%; max-width: 400px; opacity: 0.3;">
+                    <div
+                        style="height: 12px; background: #e2e8f0; border-radius: 6px; width: 60%; margin: 0 auto 12px;">
+                    </div>
+                    <div
+                        style="height: 12px; background: #e2e8f0; border-radius: 6px; width: 80%; margin: 0 auto 12px;">
+                    </div>
+                    <div style="height: 12px; background: #e2e8f0; border-radius: 6px; width: 40%; margin: 0 auto;">
+                    </div>
+                </div>
             </div>
-            <style>
-                @keyframes spin {
-                    to {
-                        transform: rotate(360deg);
-                    }
-                }
-            </style>
+
         </div>
 
         <!-- Footer -->
-        <div style="background-color: white; border-top: 1px solid var(--border-color); margin-top: 3rem;">
+        <div id="profile-footer"
+            style="background-color: white; border-top: 1px solid var(--border-color); margin-top: 3rem; display: none;">
             <div class="container" style="padding: 1.5rem 0;">
                 <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
                     <p style="color: var(--text-gray); font-size: 0.875rem; margin: 0;">
@@ -702,13 +832,14 @@
     </div>
 
     <!-- Scripts -->
-    <script type="text/javascript" src="../assets/js/jquery.js"></script>
-    <script type="text/javascript" src="../assets/js/vendors.min.js"></script>
-    <script type="text/javascript" src="../assets/js/main.js"></script>
+    <script type="text/javascript" src="/assets/js/jquery.js"></script>
+    <script type="text/javascript" src="/assets/js/vendors.min.js"></script>
+    <script type="text/javascript" src="/assets/js/main.js"></script>
 
     <script>
         // API Configuration
-        const API_BASE_URL = 'https://web-production-35b1.up.railway.app/api';
+
+        const API_BASE_URL = 'https://web-production-35b1.up.railway.app/api'; // 'https://prod.healr.ng/api';
 
         // Get doctor username from URL (supports both path and query param)
         function getDoctorUsernameFromUrl() {
@@ -740,9 +871,6 @@
         // Fetch doctor data from API
         async function fetchDoctorData(username) {
             try {
-                console.log('Fetching doctor data for username:', username);
-                console.log('API URL:', `${API_BASE_URL}/v1/doctors/@${username}/`);
-
                 // Check if running from file protocol (common cause of CORS errors)
                 if (window.location.protocol === 'file:') {
                     console.warn('Running from file:// protocol. This often causes CORS errors. Please run via a local server (e.g., Live Server, http-server, or python -m http.server).');
@@ -774,8 +902,10 @@
 
                 // Handle specific API error response
                 if (result.error || result.status === 'Not Found' || result.message === 'Failed') {
-                    const errorDetail = result.error?.detail || result.message || 'Doctor not found or unavailable';
-                    throw new Error(errorDetail);
+                    const errorDetail = result.error?.detail || result.message || 'Doctor not found';
+                    const err = new Error(errorDetail);
+                    err.isNotFound = (result.status === 'Not Found' || errorDetail.includes('not found'));
+                    throw err;
                 }
 
                 if (!result.data) {
@@ -833,7 +963,12 @@
                     avatar: data.avatar_url || '',
                     bio: data.profile?.bio || 'Not Available',
                     languages: data.profile?.languages && data.profile.languages.length > 0
-                        ? data.profile.languages
+                        ? data.profile.languages.map(lang => {
+                            const name = capitalize(lang.name || lang);
+                            return lang.proficiency && lang.proficiency !== 'native'
+                                ? `${name} (${capitalize(lang.proficiency)})`
+                                : name;
+                        })
                         : ['English'],
                     consultationFee: consultationFee,
                     rating: parseFloat(data.average_rating) || 0,
@@ -843,18 +978,20 @@
                     availability: 'Available for consultation',
                     education: (data.profile?.education || []).map(edu => ({
                         degree: edu.degree || 'Medical Degree',
-                        institution: edu.institution || 'Medical Institution',
-                        year: edu.year || 'N/A'
+                        institution: edu.school || 'Medical Institution',
+                        year: edu.start_date && edu.end_date
+                            ? `${new Date(edu.start_date).getFullYear()} - ${new Date(edu.end_date).getFullYear()}`
+                            : 'N/A'
                     })),
                     awards: (data.profile?.awards || []).map(award => ({
-                        title: award.title || award.name || award,
+                        title: award.award || 'Medical Award',
                         organization: award.organization || 'Medical Association',
-                        year: award.year || new Date().getFullYear().toString()
+                        year: award.date ? new Date(award.date).getFullYear().toString() : 'N/A'
                     })),
                     // Certifications removed as per request
                     certifications: [],
                     reviews: (data.reviews || []).map(review => ({
-                        patientName: review.patient_name || 'Anonymous',
+                        patientName: review.patient?.name || review.patient_name || 'Anonymous',
                         rating: review.rating || 5,
                         date: formatReviewDate(review.created_at),
                         comment: review.comment || review.review || ''
@@ -862,6 +999,11 @@
                 };
             } catch (error) {
                 console.error('Error fetching doctor data:', error);
+
+                if (error.isNotFound) {
+                    showError(error.message, true);
+                    return null;
+                }
 
                 // Check if it's a CORS error
                 if (error.message.includes('Failed to fetch') || error.name === 'TypeError') {
@@ -908,36 +1050,73 @@
         }
 
         // Show error message
-        function showError(message) {
+        function showError(message, is404 = false) {
             const container = document.getElementById('profile-main-container');
+            const footer = document.getElementById('profile-footer');
+
             if (container) {
-                container.innerHTML = `
-                    <div style="text-align: center; padding: 3rem 0;">
-                        <i class="fas fa-exclamation-circle" style="font-size: 3rem; color: var(--danger-color); margin-bottom: 1rem;"></i>
-                        <h2 style="color: var(--text-dark); margin-bottom: 0.5rem;">Error Loading Profile</h2>
-                        <p style="color: var(--text-gray);">${message}</p>
-                        <button onclick="location.reload()" style="margin-top: 1rem; padding: 0.75rem 1.5rem; background: var(--primary-color); color: white; border: none; border-radius: 0.5rem; cursor: pointer;">
-                            Try Again
-                        </button>
-                    </div>
-                `;
+                if (is404) {
+                    // Hide footer for 404 state
+                    if (footer) footer.style.display = 'none';
+
+                    container.innerHTML = `
+                        <div style="text-align: center; padding: 5rem 1rem;">
+                            <div style="margin-bottom: 2rem;">
+                                <i class="fas fa-search-minus" style="font-size: 5rem; color: #cbd5e1;"></i>
+                            </div>
+                            <h1 style="font-size: 4rem; font-weight: 800; color: #1e293b; margin: 0;">404</h1>
+                            <h2 style="font-size: 1.5rem; font-weight: 600; color: #475569; margin-bottom: 1rem;">Doctor Not Found</h2>
+                            <p style="color: #64748b; max-width: 400px; margin: 0 auto 2rem;">
+                                Sorry, we couldn't find a doctor with the username <strong>@${doctorUsername}</strong>. 
+                                Please check the URL or try searching for another doctor.
+                            </p>
+                            <a href="/" style="display: inline-block; padding: 0.75rem 2rem; background: var(--primary-color); color: white; text-decoration: none; border-radius: 0.5rem; font-weight: 600; transition: transform 0.2s;">
+                                Back to Homepage
+                            </a>
+                        </div>
+                    `;
+                } else {
+                    // Show footer for other errors
+                    if (footer) footer.style.display = 'block';
+
+                    container.innerHTML = `
+                        <div style="text-align: center; padding: 3rem 0;">
+                            <i class="fas fa-exclamation-circle" style="font-size: 3rem; color: var(--danger-color); margin-bottom: 1rem;"></i>
+                            <h2 style="color: var(--text-dark); margin-bottom: 0.5rem;">Error Loading Profile</h2>
+                            <p style="color: var(--text-gray);">${message}</p>
+                            <button onclick="location.reload()" style="margin-top: 1rem; padding: 0.75rem 1.5rem; background: var(--primary-color); color: white; border: none; border-radius: 0.5rem; cursor: pointer;">
+                                Try Again
+                            </button>
+                        </div>
+                    `;
+                }
             }
         }
 
         // Show loading state
         function showLoading() {
             const container = document.getElementById('profile-main-container');
+            const footer = document.getElementById('profile-footer');
+
+            // Hide footer during loading
+            if (footer) footer.style.display = 'none';
+
             if (container) {
                 container.innerHTML = `
-                    <div style="text-align: center; padding: 3rem 0;">
-                        <div style="display: inline-block; width: 3rem; height: 3rem; border: 4px solid var(--border-light); border-top-color: var(--primary-color); border-radius: 50%; animation: spin 1s linear infinite;"></div>
-                        <p style="color: var(--text-gray); margin-top: 1rem;">Loading doctor profile...</p>
+                    <div id="preloader-container" style="text-align: center; padding: 6rem 1rem; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                        <div class="loader-logo-container" style="position: relative; margin-bottom: 2rem;">
+                            <div class="loader-pulse" style="width: 80px; height: 80px; border-radius: 50%; background: var(--primary-bg); position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); animation: ripple 2s ease-out infinite;"></div>
+                            <img src="/assets/img/logo/fav.svg" alt="Loading..." style="width: 50px; height: 50px; position: relative; z-index: 10; animation: bounce-soft 2s ease-in-out infinite;">
+                        </div>
+                        <h3 style="font-family: var(--font-heading); font-size: 1.25rem; font-weight: 600; color: var(--text-dark); margin: 0;">Securing Your Connection</h3>
+                        <p style="color: var(--text-gray); font-size: 0.95rem; margin-top: 0.5rem;">Fetching the best healthcare for you...</p>
+                        
+                        <div style="margin-top: 3rem; width: 100%; max-width: 400px; opacity: 0.3;">
+                            <div style="height: 12px; background: #e2e8f0; border-radius: 6px; width: 60%; margin: 0 auto 12px;"></div>
+                            <div style="height: 12px; background: #e2e8f0; border-radius: 6px; width: 80%; margin: 0 auto 12px;"></div>
+                            <div style="height: 12px; background: #e2e8f0; border-radius: 6px; width: 40%; margin: 0 auto;"></div>
+                        </div>
                     </div>
-                    <style>
-                        @keyframes spin {
-                            to { transform: rotate(360deg); }
-                        }
-                    </style>
                 `;
             }
         }
@@ -1085,6 +1264,10 @@
                 return; // Error already shown
             }
 
+            // Ensure footer is visible when moving from hidden state
+            const footer = document.getElementById('profile-footer');
+            if (footer) footer.style.display = 'block';
+
             // Hide loading and show content
             document.getElementById('profile-main-container').innerHTML = `
                 <div class="row">
@@ -1092,19 +1275,19 @@
                     <div class="col-lg-8">
                         <!-- Profile Card -->
                         <div class="profile-card">
-                            <div class="row">
+                            <div class="row align-items-center profile-header-card">
                                 <!-- Avatar -->
-                                <div class="col-auto mb-3 mb-sm-0">
+                                <div class="col-auto">
                                     <div id="doctor-avatar"></div>
                                 </div>
 
                                 <!-- Info -->
                                 <div class="col">
-                                    <div class="d-flex justify-content-between align-items-start mb-2 flex-wrap gap-2">
-                                        <div>
-                                            <h1 style="font-size: 1.875rem; font-weight: bold; color: var(--text-dark); margin-bottom: 0.25rem;"
+                                    <div class="d-flex justify-content-between align-items-start mb-2 flex-wrap gap-2 profile-info-row">
+                                        <div class="w-100 w-sm-auto">
+                                            <h1 style="font-size: 2.25rem; font-weight: 800; color: var(--text-dark); margin-bottom: 0.25rem;"
                                                 id="doctor-name"></h1>
-                                            <p style="color: var(--text-gray); font-size: 1.125rem; margin: 0;"
+                                            <p style="color: var(--text-gray); font-size: 1.125rem; margin: 0; font-weight: 500;"
                                                 id="doctor-title"></p>
                                         </div>
                                         <div id="verified-badge"></div>
@@ -1122,11 +1305,11 @@
                         <!-- About Section -->
                         <div class="profile-card">
                             <h2 class="section-title">About</h2>
-                            <p style="color: var(--text-dark); line-height: 1.6;" id="doctor-bio"></p>
+                            <p style="color: var(--text-gray); line-height: 1.8; font-size: 1.05rem;" id="doctor-bio"></p>
                         </div>
 
                         <!-- Education -->
-                        <div class="profile-card">
+                        <div class="profile-card" id="education-card">
                             <h2 class="section-title">
                                 <i class="fas fa-graduation-cap"></i>
                                 Education
@@ -1137,7 +1320,7 @@
                         <!-- Certifications hidden as requested -->
 
                         <!-- Awards -->
-                        <div class="profile-card">
+                        <div class="profile-card" id="awards-card">
                             <h2 class="section-title">
                                 <i class="fas fa-award"></i>
                                 Awards & Recognition
@@ -1168,7 +1351,6 @@
                             <div class="consultation-fee">
                                 <span style="color: var(--text-gray);">Consultation Fee</span>
                                 <div class="fee-amount">
-                                    <i class="fas fa-money-bill-wave"></i>
                                     <span id="consultation-fee"></span>
                                 </div>
                             </div>
@@ -1244,6 +1426,29 @@
             document.getElementById('doctor-name').textContent = doctor.name;
             document.getElementById('doctor-title').textContent = doctor.title;
 
+            // Render Reg & Folio Numbers for credibility
+            const credentialsHtml = `
+                <div class="credentials-badges" style="display: flex; gap: 0.75rem; margin-top: 0.5rem; flex-wrap: wrap;">
+                    <div style="font-size: 0.75rem; color: var(--text-gray); background: var(--border-light); padding: 0.2rem 0.6rem; border-radius: 4px; border: 1px solid var(--border-color);">
+                        Reg: ${doctor.regNumber}
+                    </div>
+                    <div style="font-size: 0.75rem; color: var(--text-gray); background: var(--border-light); padding: 0.2rem 0.6rem; border-radius: 4px; border: 1px solid var(--border-color);">
+                        Folio: ${doctor.folioNumber}
+                    </div>
+                </div>
+            `;
+
+            // We need a place to put this. Let's add an ID for it.
+            const doctorTitleEl = document.getElementById('doctor-title');
+            if (doctorTitleEl && !document.getElementById('doctor-credentials')) {
+                const credContainer = document.createElement('div');
+                credContainer.id = 'doctor-credentials';
+                credContainer.innerHTML = credentialsHtml;
+                doctorTitleEl.parentNode.appendChild(credContainer);
+            } else if (document.getElementById('doctor-credentials')) {
+                document.getElementById('doctor-credentials').innerHTML = credentialsHtml;
+            }
+
             // Render verified badge
             if (doctor.verified) {
                 document.getElementById('verified-badge').innerHTML = `
@@ -1266,6 +1471,10 @@
             `;
 
             // Render quick info
+            const experienceText = doctor.experience.includes('years')
+                ? `${doctor.experience} experience`
+                : doctor.experience;
+
             document.getElementById('quick-info').innerHTML = `
                 <div class="col-sm-6">
                     <div class="info-item">
@@ -1276,7 +1485,7 @@
                 <div class="col-sm-6">
                     <div class="info-item">
                         <i class="fas fa-graduation-cap"></i>
-                        <span>${doctor.experience} experience</span>
+                        <span>${experienceText}</span>
                     </div>
                 </div>
                 <div class="col-sm-6">
@@ -1297,40 +1506,50 @@
             document.getElementById('doctor-bio').textContent = doctor.bio;
 
             // Render education
-            let educationHtml = '';
-            doctor.education.forEach(edu => {
-                educationHtml += `
-                    <div class="education-item">
-                        <div class="timeline-dot"></div>
-                        <div>
-                            <p style="font-weight: 600; color: var(--text-dark); margin-bottom: 0.2rem; font-size: 0.95rem;">${edu.degree}</p>
-                            <p style="font-size: 0.82rem; color: var(--text-gray); margin-bottom: 0.1rem;">${edu.institution}</p>
-                            <p style="font-size: 0.72rem; color: var(--text-gray); margin: 0;">${edu.year}</p>
+            if (doctor.education && doctor.education.length > 0) {
+                let educationHtml = '';
+                doctor.education.forEach(edu => {
+                    educationHtml += `
+                        <div class="education-item">
+                            <div class="timeline-dot"></div>
+                            <div>
+                                <p style="font-weight: 600; color: var(--text-dark); margin-bottom: 0.2rem; font-size: 0.95rem;">${edu.degree}</p>
+                                <p style="font-size: 0.82rem; color: var(--text-gray); margin-bottom: 0.1rem;">${edu.institution}</p>
+                                <p style="font-size: 0.72rem; color: var(--text-gray); margin: 0;">${edu.year}</p>
+                            </div>
                         </div>
-                    </div>
-                `;
-            });
-            document.getElementById('education-list').innerHTML = educationHtml;
+                    `;
+                });
+                document.getElementById('education-list').innerHTML = educationHtml;
+                document.getElementById('education-card').style.display = 'block';
+            } else {
+                document.getElementById('education-card').style.display = 'none';
+            }
 
             // Certifications rendering logic removed as per request
 
             // Render awards
-            let awardsHtml = '';
-            doctor.awards.forEach(award => {
-                awardsHtml += `
-                    <div class="award-item">
-                        <div class="award-icon">
-                            <i class="fas fa-award"></i>
+            if (doctor.awards && doctor.awards.length > 0) {
+                let awardsHtml = '';
+                doctor.awards.forEach(award => {
+                    awardsHtml += `
+                        <div class="award-item">
+                            <div class="award-icon">
+                                <i class="fas fa-award"></i>
+                            </div>
+                            <div>
+                                <p style="font-weight: 600; color: var(--text-dark); margin-bottom: 0.2rem; font-size: 0.95rem;">${award.title}</p>
+                                <p style="font-size: 0.82rem; color: var(--text-gray); margin-bottom: 0.1rem;">${award.organization}</p>
+                                <p style="font-size: 0.72rem; color: var(--text-gray); margin: 0;">${award.year}</p>
+                            </div>
                         </div>
-                        <div>
-                            <p style="font-weight: 600; color: var(--text-dark); margin-bottom: 0.2rem; font-size: 0.95rem;">${award.title}</p>
-                            <p style="font-size: 0.82rem; color: var(--text-gray); margin-bottom: 0.1rem;">${award.organization}</p>
-                            <p style="font-size: 0.72rem; color: var(--text-gray); margin: 0;">${award.year}</p>
-                        </div>
-                    </div>
-                `;
-            });
-            document.getElementById('awards-list').innerHTML = awardsHtml;
+                    `;
+                });
+                document.getElementById('awards-list').innerHTML = awardsHtml;
+                document.getElementById('awards-card').style.display = 'block';
+            } else {
+                document.getElementById('awards-card').style.display = 'none';
+            }
 
             // Render hospital info
             document.getElementById('hospital-info').innerHTML = `
@@ -1419,13 +1638,6 @@
 
             try {
                 // TODO: Replace with actual API call
-                console.log('Submitting report:', {
-                    doctorUid: doctorData.uid,
-                    doctorUsername: doctorData.username,
-                    reason: reportReason.value,
-                    details: reportDetails.value
-                });
-
                 // Simulate API call
                 await new Promise(resolve => setTimeout(resolve, 1500));
 
