@@ -24,11 +24,10 @@
     <!-- Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-    <!-- Google Fonts -->
+    <!-- Google Fonts - Inter for consistency with landing pages -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@600;700;800&display=swap"
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
         rel="stylesheet">
 
     <style>
@@ -42,40 +41,46 @@
             --warning-bg: #FFF4E5;
             --danger-color: #EF4444;
             --danger-bg: #FEE2E2;
-            --text-dark: #0f172a;
-            --text-gray: #64748b;
-            --text-light-gray: #94a3b8;
-            --border-color: #e2e8f0;
-            --border-light: #f1f5f9;
+            --text-dark: #232323;
+            --text-gray: #5A5959;
+            --text-light-gray: #9E9E9E;
+            --border-color: #E0E0E0;
+            --border-light: #F5F5F5;
             --star-color: #fbbf24;
             --font-body: 'Inter', system-ui, -apple-system, sans-serif;
-            --font-heading: 'Outfit', system-ui, -apple-system, sans-serif;
+            --font-heading: 'Inter', system-ui, -apple-system, sans-serif;
         }
 
         body {
-            background-color: #f8fafc;
+            background-color: #F7F9FB;
             font-family: var(--font-body);
-            color: #334155;
-            line-height: 1.6;
+            color: var(--text-gray);
+            line-height: 1.7;
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
         }
 
         h1,
         h2,
-        h3 {
-            font-family: var(--font-heading);
-            color: var(--text-dark);
-            letter-spacing: -0.02em;
-            font-weight: 700;
-        }
-
+        h3,
         h4,
         h5,
         h6 {
             font-family: var(--font-heading);
             color: var(--text-dark);
-            font-weight: 600;
+            letter-spacing: -0.01em;
+        }
+
+        h1,
+        h2,
+        h3 {
+            font-weight: 800;
+        }
+
+        h4,
+        h5,
+        h6 {
+            font-weight: 700;
         }
 
         /* Doctor Profile Specific Styles */
@@ -158,16 +163,6 @@
             }
 
             #rating-section {
-                justify-content: center;
-            }
-
-            #doctor-credentials {
-                display: flex;
-                justify-content: center;
-                width: 100%;
-            }
-
-            .credentials-badges {
                 justify-content: center;
             }
 
@@ -896,7 +891,9 @@
                 if (!response.ok) {
                     const errorText = await response.text();
                     console.error('API Error Response:', errorText);
-                    throw new Error(`HTTP error! status: ${response.status}`);
+                    const err = new Error(response.status === 404 ? 'Doctor profile not found' : 'We encountered an issue loading this profile');
+                    err.isNotFound = (response.status === 404);
+                    throw err;
                 }
 
                 const result = await response.json();
@@ -1066,11 +1063,11 @@
                             <div style="margin-bottom: 2rem;">
                                 <i class="fas fa-search-minus" style="font-size: 5rem; color: #cbd5e1;"></i>
                             </div>
-                            <h1 style="font-size: 4rem; font-weight: 800; color: #1e293b; margin: 0;">404</h1>
-                            <h2 style="font-size: 1.5rem; font-weight: 600; color: #475569; margin-bottom: 1rem;">Doctor Not Found</h2>
-                            <p style="color: #64748b; max-width: 400px; margin: 0 auto 2rem;">
-                                Sorry, we couldn't find a doctor with the username <strong>@${doctorUsername}</strong>. 
-                                Please check the URL or try searching for another doctor.
+                            <h1 style="font-size: 2.25rem; font-weight: 800; color: #1e293b; margin: 0;">Profile Not Found</h1>
+                            <h2 style="font-size: 1.25rem; font-weight: 600; color: #475569; margin-top: 0.5rem; margin-bottom: 1.5rem;">We couldn't find the doctor you're looking for</h2>
+                            <p style="color: #64748b; max-width: 450px; margin: 0 auto 2rem; line-height: 1.6;">
+                                The username <strong>@${doctorUsername}</strong> might be incorrect, or the profile may have been moved. 
+                                Please double-check the URL or return to the homepage to search again.
                             </p>
                             <a href="/" style="display: inline-block; padding: 0.75rem 2rem; background: var(--primary-color); color: white; text-decoration: none; border-radius: 0.5rem; font-weight: 600; transition: transform 0.2s;">
                                 Back to Homepage
@@ -1086,10 +1083,10 @@
                             <div style="margin-bottom: 2rem;">
                                 <i class="fas fa-exclamation-triangle" style="font-size: 5rem; color: #fee2e2;"></i>
                             </div>
-                            <h1 style="font-size: 2.5rem; font-weight: 800; color: #1e293b; margin: 0;">Error</h1>
-                            <h2 style="font-size: 1.5rem; font-weight: 600; color: #475569; margin-bottom: 1rem;">Unable to Load Profile</h2>
-                            <p style="color: #64748b; max-width: 500px; margin: 0 auto 2rem;">
-                                ${message}
+                            <h1 style="font-size: 2.25rem; font-weight: 800; color: #1e293b; margin: 0;">Oops!</h1>
+                            <h2 style="font-size: 1.25rem; font-weight: 600; color: #475569; margin-top: 0.5rem; margin-bottom: 1.5rem;">Something went wrong while loading this profile</h2>
+                            <p style="color: #64748b; max-width: 500px; margin: 0 auto 2rem; line-height: 1.6;">
+                                We're having trouble reaching our servers right now. This is usually temporary.
                             </p>
                             <button onclick="location.reload()" style="display: inline-block; padding: 0.75rem 2.5rem; background: var(--primary-color); color: white; border: none; border-radius: 0.5rem; font-weight: 600; cursor: pointer; transition: transform 0.2s;">
                                 Try Again
@@ -1257,7 +1254,7 @@
         // Initialize page with API data
         async function initializePage() {
             if (!doctorUsername) {
-                showError('Invalid doctor profile URL.');
+                showError('Profile not found', true);
                 return;
             }
 
@@ -1433,28 +1430,7 @@
             document.getElementById('doctor-name').textContent = doctor.name;
             document.getElementById('doctor-title').textContent = doctor.title;
 
-            // Render Reg & Folio Numbers for credibility
-            const credentialsHtml = `
-                <div class="credentials-badges" style="display: flex; gap: 0.75rem; margin-top: 0.5rem; flex-wrap: wrap;">
-                    <div style="font-size: 0.75rem; color: var(--text-gray); background: var(--border-light); padding: 0.2rem 0.6rem; border-radius: 4px; border: 1px solid var(--border-color);">
-                        Reg: ${doctor.regNumber}
-                    </div>
-                    <div style="font-size: 0.75rem; color: var(--text-gray); background: var(--border-light); padding: 0.2rem 0.6rem; border-radius: 4px; border: 1px solid var(--border-color);">
-                        Folio: ${doctor.folioNumber}
-                    </div>
-                </div>
-            `;
-
-            // We need a place to put this. Let's add an ID for it.
-            const doctorTitleEl = document.getElementById('doctor-title');
-            if (doctorTitleEl && !document.getElementById('doctor-credentials')) {
-                const credContainer = document.createElement('div');
-                credContainer.id = 'doctor-credentials';
-                credContainer.innerHTML = credentialsHtml;
-                doctorTitleEl.parentNode.appendChild(credContainer);
-            } else if (document.getElementById('doctor-credentials')) {
-                document.getElementById('doctor-credentials').innerHTML = credentialsHtml;
-            }
+            // Credentials rendering removed as per request
 
             // Render verified badge
             if (doctor.verified) {
