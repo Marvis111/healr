@@ -933,8 +933,21 @@
                 const otherSpecialties = data.profile?.other_specialties || [];
 
                 // Format consultation fee from specialty
-                const consultationFee = primarySpecialty?.fee
-                    ? `₦${primarySpecialty.fee.toLocaleString()}`
+                // Calculate consultation fee (Max of primary + others)
+                let maxFee = primarySpecialty?.fee || 0;
+                let isMaxFromOther = false;
+
+                if (otherSpecialties && otherSpecialties.length > 0) {
+                    otherSpecialties.forEach(spec => {
+                        if (spec.fee && spec.fee > maxFee) {
+                            maxFee = spec.fee;
+                            isMaxFromOther = true;
+                        }
+                    });
+                }
+
+                const consultationFee = maxFee > 0
+                    ? `₦${maxFee.toLocaleString()}${isMaxFromOther ? ' (Max)' : ''}`
                     : 'Contact for pricing';
 
                 // Calculate years of experience from date of birth (rough estimate)
