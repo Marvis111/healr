@@ -1,0 +1,6 @@
+# This directory is for .well-known files
+# Common uses:
+# - apple-app-site-association (for iOS Universal Links)
+# - assetlinks.json (for Android App Links)
+# - security.txt
+# etc.
