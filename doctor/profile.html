@@ -1479,7 +1479,7 @@
 
                     const androidStore = 'https://play.google.com/store/apps/details?id=com.myzoda.healr';
                     const iosStore = 'https://apps.apple.com/ng/app/healr-app/id6752496528';
-                    const deepLink = `healr://book?uid=${uid}&username=${username}`;
+                    const deepLink = `https://healr.ng/book?uid=${uid}&username=${username}`;
 
                     // Detect OS
                     const userAgent = navigator.userAgent || navigator.vendor || window.opera;
@@ -1487,18 +1487,34 @@
                     const isIOS = /iPad|iPhone|iPod/.test(userAgent) && !window.MSStream;
 
                     if (isAndroid || isIOS) {
-                        // Deep Link attempt
-                        // We use a timeout to check if the app opened. 
-                        // If it opens, the browser tab usually goes into the background and the timer pauses.
                         const start = Date.now();
+                        let redirectTimer;
+
+                        // Try to open app via direct assignment
                         window.location.href = deepLink;
 
-                        setTimeout(() => {
-                            if (Date.now() - start < 2500) {
-                                // App didn't open, redirect to store
-                                window.location.href = isAndroid ? androidStore : iosStore;
+                        // Fallback to store after a more generous delay
+                        // This gives the user time to tap "Open" in system prompts
+                        redirectTimer = setTimeout(() => {
+                            const now = Date.now();
+                            const elapsed = now - start;
+
+                            // If the page was hidden or the timer was paused (drift > 5s), 
+                            // we assume the app opened or a prompt is active.
+                            if (document.hidden || document.visibilityState === 'hidden' || elapsed > 5000) {
+                                return;
                             }
-                        }, 2000);
+
+                            // Only redirect if the page is still visible and no significant drift occurred
+                            // (meaning the deep link was likely ignored/failed)
+                            window.location.href = isAndroid ? androidStore : iosStore;
+                        }, 3500);
+
+                        // Also clear timer if we detect focus loss immediately
+                        const clearTimer = () => clearTimeout(redirectTimer);
+                        window.addEventListener('visibilitychange', clearTimer, { once: true });
+                        window.addEventListener('blur', clearTimer, { once: true });
+                        window.addEventListener('pagehide', clearTimer, { once: true });
                     } else {
                         // Desktop fallback - Show Modal
                         document.getElementById('app-redirect-modal').classList.add('active');
