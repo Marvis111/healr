@@ -190,6 +190,19 @@
             #quick-info {
                 text-align: center;
             }
+
+            .container {
+                padding-left: 1.25rem !important;
+                padding-right: 1.25rem !important;
+            }
+
+            #profile-main-container {
+                padding: 1rem !important;
+            }
+
+            .profile-card {
+                padding: 1.25rem;
+            }
         }
 
         .profile-card {
@@ -708,6 +721,8 @@
             style="background-color: white; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); border-bottom: 1px solid var(--border-color);">
             <div class="container" style="padding: 1rem 0;">
                 <div style="display: flex; align-items: center; gap: 0.75rem;">
+                    <img src="../assets/img/logo/logo.svg" alt="HealR Logo" style="height: 32px;"
+                        class="d-block d-md-none">
                     <img src="../assets/img/logo/logo.svg" alt="HealR Logo" style="height: 40px;"
                         class="d-none d-md-block">
                 </div>
@@ -824,6 +839,50 @@
                 </div>
             </div>
         </div>
+
+        <!-- App Redirect Modal (Desktop Fallback) -->
+        <div class="modal-overlay" id="app-redirect-modal">
+            <div class="modal-content" style="max-width: 28rem; text-align: center;">
+                <div class="modal-header" style="border: none; padding-bottom: 0;">
+                    <div style="flex: 1;"></div>
+                    <button id="close-app-modal"
+                        style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--text-light-gray);">&times;</button>
+                </div>
+                <div class="modal-body" style="padding: 0 2rem 2.5rem;">
+                    <div
+                        style="background: var(--primary-bg); width: 72px; height: 72px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem;">
+                        <i class="fas fa-mobile-screen-button"
+                            style="font-size: 2.25rem; color: var(--primary-color);"></i>
+                    </div>
+                    <h3 style="font-size: 1.5rem; font-weight: 800; margin-bottom: 0.75rem; color: var(--text-dark);">
+                        Consult via the App</h3>
+                    <p style="color: var(--text-gray); margin-bottom: 2rem; font-size: 1rem; line-height: 1.5;">To
+                        provide the most secure video experience, consultations are conducted exclusively through the
+                        HealR mobile app.</p>
+
+                    <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                        <a href="https://apps.apple.com/ng/app/healr-app/id6752496528" target="_blank"
+                            class="d-flex align-items-center justify-content-center gap-3"
+                            style="background: #000; color: white; padding: 0.85rem; border-radius: 0.75rem; font-weight: 600; text-decoration: none; transition: transform 0.2s;">
+                            <i class="fab fa-apple" style="font-size: 1.5rem;"></i>
+                            <div style="text-align: left; line-height: 1.2;">
+                                <div style="font-size: 0.7rem; font-weight: 400; opacity: 0.8;">Download on the</div>
+                                <div style="font-size: 1.1rem;">App Store</div>
+                            </div>
+                        </a>
+                        <a href="https://play.google.com/store/apps/details?id=com.myzoda.healr" target="_blank"
+                            class="d-flex align-items-center justify-content-center gap-3"
+                            style="background: #000; color: white; padding: 0.85rem; border-radius: 0.75rem; font-weight: 600; text-decoration: none; transition: transform 0.2s;">
+                            <i class="fab fa-google-play" style="font-size: 1.25rem;"></i>
+                            <div style="text-align: left; line-height: 1.2;">
+                                <div style="font-size: 0.7rem; font-weight: 400; opacity: 0.8;">GET IT ON</div>
+                                <div style="font-size: 1.1rem;">Google Play</div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Scripts -->
@@ -918,8 +977,21 @@
                 const otherSpecialties = data.profile?.other_specialties || [];
 
                 // Format consultation fee from specialty
-                const consultationFee = primarySpecialty?.fee
-                    ? `₦${primarySpecialty.fee.toLocaleString()}`
+                // Calculate consultation fee (Max of primary + others)
+                let maxFee = primarySpecialty?.fee || 0;
+                let isMaxFromOther = false;
+
+                if (otherSpecialties && otherSpecialties.length > 0) {
+                    otherSpecialties.forEach(spec => {
+                        if (spec.fee && spec.fee > maxFee) {
+                            maxFee = spec.fee;
+                            isMaxFromOther = true;
+                        }
+                    });
+                }
+
+                const consultationFee = maxFee > 0
+                    ? `₦${maxFee.toLocaleString()}${isMaxFromOther ? ' (Max)' : ''}`
                     : 'Contact for pricing';
 
                 // Calculate years of experience from date of birth (rough estimate)
@@ -1402,11 +1474,54 @@
             const bookBtn = document.getElementById('book-consultation-btn');
             if (bookBtn) {
                 bookBtn.addEventListener('click', function () {
-                    // Use UID from fetched data for booking
-                    const patientAppUrl = `https://healr.ng/book/${doctorData.uid}`;
-                    window.location.href = patientAppUrl;
+                    const uid = doctorData.uid;
+                    const username = doctorData.username;
+
+                    const androidStore = 'https://play.google.com/store/apps/details?id=com.myzoda.healr';
+                    const iosStore = 'https://apps.apple.com/ng/app/healr-app/id6752496528';
+                    const deepLink = `healr://book?uid=${uid}&username=${username}`;
+
+                    // Detect OS
+                    const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+                    const isAndroid = /android/i.test(userAgent);
+                    const isIOS = /iPad|iPhone|iPod/.test(userAgent) && !window.MSStream;
+
+                    if (isAndroid || isIOS) {
+                        // Deep Link attempt
+                        // We use a timeout to check if the app opened. 
+                        // If it opens, the browser tab usually goes into the background and the timer pauses.
+                        const start = Date.now();
+                        window.location.href = deepLink;
+
+                        setTimeout(() => {
+                            if (Date.now() - start < 2500) {
+                                // App didn't open, redirect to store
+                                window.location.href = isAndroid ? androidStore : iosStore;
+                            }
+                        }, 2000);
+                    } else {
+                        // Desktop fallback - Show Modal
+                        document.getElementById('app-redirect-modal').classList.add('active');
+                    }
                 });
             }
+
+            // Close App Modal logic
+            const appModal = document.getElementById('app-redirect-modal');
+            const closeAppModal = document.getElementById('close-app-modal');
+
+            if (closeAppModal) {
+                closeAppModal.addEventListener('click', () => {
+                    appModal.classList.remove('active');
+                });
+            }
+
+            // Close on click outside
+            appModal.addEventListener('click', (e) => {
+                if (e.target === appModal) {
+                    appModal.classList.remove('active');
+                }
+            });
         }
 
         // Render doctor profile data
