@@ -91,7 +91,12 @@ Resources:
 
             // Append ".html" to origin request
             if (suffix && uri.match(regexSuffixless)) {
-                request.uri = uri + suffix;
+                // Special case for routing
+                if (uri.startsWith('/doctor/') || uri === '/book' || uri === '/book/') {
+                    request.uri = '/doctor/profile.html';
+                } else {
+                    request.uri = uri + suffix;
+                }
                 return request;
             }
             
