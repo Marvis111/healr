@@ -2,6 +2,7 @@
 class ComponentLoader {
     constructor() {
         this.components = {};
+        this.sectionObserver = null;
     }
 
     // Load a component from a file
@@ -83,20 +84,16 @@ class ComponentLoader {
             currentPage = 'index.html';
         }
         
-        console.log('Setting active navigation for page:', currentPage);
         
         var navLinks = $(".navbar-nav .nav-link");
-        console.log('Found navigation links:', navLinks.length);
         
         navLinks.each(function () {
             var _this = $(this),
                 aHref = _this.attr("href");
             
-            console.log('Checking link:', aHref);
             
             // Skip links that don't have href or are external links
             if (!aHref || aHref.startsWith('http') || aHref.startsWith('#')) {
-                console.log('Skipping link:', aHref);
                 return;
             }
             
@@ -105,13 +102,97 @@ class ComponentLoader {
                 (currentPage === 'index.html' && aHref === 'index.html') ||
                 (currentPage === 'index.html' && aHref === './') ||
                 (currentPage === 'index.html' && aHref === '/')) {
-                console.log('Setting active for:', aHref);
                 _this.addClass("active");
                 _this.parent().addClass("active");
+            } else {
+                _this.removeClass("active");
+                _this.parent().removeClass("active");
             }
         });
         
         this.setupSmoothScrolling();
+
+        // Setup scroll-spy using IntersectionObserver
+        if (this.sectionObserver) {
+            this.sectionObserver.disconnect();
+        }
+
+        const sections = document.querySelectorAll('section[id]');
+        const options = {
+            root: null,
+            rootMargin: '0px',
+            threshold: 0.5 // 50% of section visible
+        };
+
+        const navLinksArray = Array.from(navLinks);
+
+        this.sectionObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                const sectionId = entry.target.id;
+                const homeLink = navLinksArray.find(link => {
+                    const href = $(link).attr('href');
+                    return href && (href === 'index.html' || href === './' || href === '/' || href === '');
+                });
+                const serviceLink = navLinksArray.find(link => {
+                    const href = $(link).attr('href');
+                    return href && href.includes('services');
+                });
+
+                if (entry.isIntersecting) {
+                    // Remove active from all nav links
+                    navLinksArray.forEach(link => {
+                        $(link).removeClass('active');
+                        $(link).parent().removeClass('active');
+                    });
+
+                    if (sectionId === 'services') {
+                        // When services section is in view, activate services nav and deactivate home
+                        if (serviceLink) {
+                            $(serviceLink).addClass('active');
+                            $(serviceLink).parent().addClass('active');
+                        }
+                        if (homeLink) {
+                            $(homeLink).removeClass('active');
+                            $(homeLink).parent().removeClass('active');
+                        }
+                    } else {
+                        // For other sections, activate the corresponding nav link if exists
+                        const targetLink = navLinksArray.find(link => {
+                            const href = $(link).attr('href');
+                            if (!href) return false;
+                            let hrefPage = href.split('#')[0];
+                            if (hrefPage === '') hrefPage = 'index.html';
+                            return hrefPage === currentPage && href.includes(`#${sectionId}`);
+                        });
+                        if (targetLink) {
+                            $(targetLink).addClass('active');
+                            $(targetLink).parent().addClass('active');
+                        } else if (homeLink) {
+                            // Default to home if no other matches
+                            $(homeLink).addClass('active');
+                            $(homeLink).parent().addClass('active');
+                        }
+                    }
+                } else {
+                    // When services section is not intersecting, ensure home is active if no other section is active
+                    if (sectionId === 'services') {
+                        const anyActive = navLinksArray.some(link => $(link).hasClass('active'));
+                        if (!anyActive && homeLink) {
+                            navLinksArray.forEach(link => {
+                                $(link).removeClass('active');
+                                $(link).parent().removeClass('active');
+                            });
+                            $(homeLink).addClass('active');
+                            $(homeLink).parent().addClass('active');
+                        }
+                    }
+                }
+            });
+        }, options);
+
+        sections.forEach(section => {
+            this.sectionObserver.observe(section);
+        });
     }
     
     setupSmoothScrolling() {
@@ -145,9 +226,6 @@ class ComponentLoader {
         const currentUrl = window.location.href;
         const headerButtons = document.getElementById('header-buttons');
         
-        console.log('Current pathname:', currentPage);
-        console.log('Current URL:', currentUrl);
-        console.log('Header buttons element:', headerButtons);
         
         // Check multiple conditions for index page
         const isIndexPage = currentPage === '/index.html' || 
@@ -156,10 +234,8 @@ class ComponentLoader {
                            currentUrl.includes('index.html') ||
                            (currentPage === '' && window.location.href.includes('index.html'));
         
-        console.log('Is index page:', isIndexPage);
         
         if (isIndexPage && headerButtons) {
-            console.log('Hiding header buttons');
             headerButtons.style.display = 'none';
         }
     }

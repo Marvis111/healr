@@ -40,16 +40,12 @@
     padding-top: 150px;
   }
   section {
-    padding-top: 90px;
-    padding-bottom: 90px;
+    padding-top: 60px; 
+    padding-bottom: 40px;
   }
   section.big-section {
     padding-top: 120px;
     padding-bottom: 120px;
-  }
-  section.extra-big-section {
-    padding-top: 160px;
-    /* padding-bottom: 160px; */
   }
 }
 @media (max-width: 991px) {
@@ -69,7 +65,6 @@
     padding-bottom: 95px;
   }
   section.extra-big-section {
-    padding-top: 110px;
     padding-bottom: 110px;
   }
   .row.md-gutter-very-small {
@@ -21240,7 +21235,7 @@
     font-size:16px !important
   }
   .page-title-big-typography h1{
-    margin-top: 100px !important;
+    /* margin-top: 40px !important; */
   }
   .page-title-big-typography p{
     margin-bottom: 70px;

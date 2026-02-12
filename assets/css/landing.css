@@ -1,22 +1,36 @@
 @media screen and (max-width: 992px) {
-    .navbar-nav {
-        align-items: flex-start !important;
-    }
-    .navbar .navbar-nav .nav-item .nav-link.active,
-.navbar .navbar-nav .nav-item.active .nav-link,
-.navbar .navbar-nav .nav-item:hover .nav-link {
-  color: var(--base-color);
-  background: transparent;
-}
+  .navbar-nav {
+    align-items: flex-start !important;
+  }
+
+  .navbar .navbar-nav .nav-item .nav-link.active,
+  .navbar .navbar-nav .nav-item.active .nav-link,
+  .navbar .navbar-nav .nav-item:hover .nav-link {
+    color: var(--base-color);
+    background: transparent;
+  }
 
 }
+
+/* Reduce header height */
+.navbar {
+  padding-top: 0.5rem !important;
+  padding-bottom: 0.5rem !important;
+  min-height: auto !important;
+}
+
 header .header-top-bar [class*="col-"] .header-icon,
 header .navbar [class*="col-"],
 header .navbar [class*="col-"] .navbar-nav {
-  -ms-flex-item-align: stretch;
-  -ms-grid-row-align: stretch;
-  align-self: stretch;
+  -ms-flex-item-align: center;
+  -ms-grid-row-align: center;
+  align-self: center;
   display: flex;
   justify-content: center;
   align-items: center;
+}
+
+.navbar-brand {
+  padding-top: 0.25rem !important;
+  padding-bottom: 0.25rem !important;
 }

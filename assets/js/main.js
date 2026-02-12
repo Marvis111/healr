@@ -1813,7 +1813,6 @@
               response.data[x]["media_type"] == "IMAGE" ||
               response.data[x]["media_type"] == "CAROUSEL_ALBUM"
             ) {
-              console.log("image");
               var link = response.data[x]["permalink"] || "",
                 image = response.data[x]["media_url"] || "",
                 likes = response.data[x]["like_count"] || "",
@@ -2040,18 +2039,15 @@
             const img = new Image();
             img.onload = function() {
               heroImage.src = imagePath;
-              console.log(`Hero image updated to: ${imagePath} for ${userRegion || 'default'} region`);
             };
             img.onerror = function() {
               // If region-specific image doesn't exist, use default
               heroImage.src = 'assets/img/hero-1.webp';
-              console.log(`Region-specific image not found, using default: hero-1.webp`);
             };
             img.src = imagePath;
           }
         },
         function(error) {
-          console.log('Geolocation error:', error);
           // Use default image if geolocation fails
           const heroImage = document.querySelector('.hero-image');
           if (heroImage) {
@@ -2065,7 +2061,6 @@
         }
       );
     } else {
-      console.log('Geolocation is not supported by this browser');
       // Use default image if geolocation is not supported
       const heroImage = document.querySelector('.hero-image');
       if (heroImage) {
@@ -3549,17 +3544,14 @@
             const img = new Image();
             img.onload = function() {
               heroImage.src = imagePath;
-              console.log(`Hero image updated to: ${imagePath} for ${userRegion || 'default'} region`);
             };
             img.onerror = function() {
               heroImage.src = 'assets/img/hero-1.webp';
-              console.log(`Region-specific image not found, using default: hero-1.webp`);
             };
             img.src = imagePath;
           }
         },
         function(error) {
-          console.log('Geolocation error:', error);
           // Use default image if geolocation fails
           const heroImage = document.querySelector('.hero-image');
           if (heroImage) {
@@ -3573,7 +3565,6 @@
         }
       );
     } else {
-      console.log('Geolocation is not supported by this browser');
       const heroImage = document.querySelector('.hero-image');
       if (heroImage) {
         heroImage.src = 'assets/img/hero-1.webp';
