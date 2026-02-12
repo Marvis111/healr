@@ -9,6 +9,7 @@ Parameters:
   ProjectId:
     Type: String
     Description: Project identifier
+    Value: healr
 
   DomainName:
     Type: String
