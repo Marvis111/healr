@@ -75,6 +75,7 @@ jobs:
       - name: Upload content to S3
         run: |
           aws s3 sync ./ s3://$S3_BUCKET --delete
+          aws s3 cp Landingpage/.well-known/apple-app-site-association s3://$S3_BUCKET/.well-known/apple-app-site-association --content-type application/json
 
       - name: Invalidate CloudFront
         run: |
