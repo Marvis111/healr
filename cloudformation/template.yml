@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: 2010-09-09
-Description: HealR static landing page (S3 + CloudFront + Lambda@Edge)
+Description: HealR static landing page (S3 + CloudFront + Lambda@Edge) - in-place update safe
 
 Parameters:
   Env:
@@ -118,7 +118,7 @@ Resources:
       FunctionName: !Ref RewriteFunction
 
   ############################################################
-  # CloudFront Distribution
+  # CloudFront Distribution (In-Place Update Safe)
   ############################################################
 
   CloudFrontDistribution:
@@ -131,29 +131,28 @@ Resources:
         HttpVersion: http2
         PriceClass: PriceClass_100
 
+        # Use same aliases as current distribution
         Aliases: !If
           - UseCustomDomain
           - !Split [",", !Ref DomainName]
           - !Ref "AWS::NoValue"
 
         Origins:
-          - Id: !Ref S3WebsiteBucket
+          - Id: !Ref S3WebsiteBucket   # Matches existing distribution
             DomainName: !GetAtt S3WebsiteBucket.DomainName
             S3OriginConfig:
               OriginAccessIdentity: !Sub "origin-access-identity/cloudfront/${CloudFrontOAI}"
 
         DefaultCacheBehavior:
-          TargetOriginId: !Ref S3WebsiteBucket
+          TargetOriginId: !Ref S3WebsiteBucket   # Matches existing distribution
           ViewerProtocolPolicy: redirect-to-https
           AllowedMethods:
             - GET
             - HEAD
             - OPTIONS
 
-          # AWS Managed Cache Policy (Optimized for S3)
+          # Managed policies
           CachePolicyId: 658327ea-f89d-4fab-a63d-7e88639e58f6
-
-          # AWS Managed Origin Request Policy
           OriginRequestPolicyId: 88a5eaf4-2fd4-4709-b370-b4c650ea3fcf
 
           LambdaFunctionAssociations:
