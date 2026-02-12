@@ -177,10 +177,7 @@ Resources:
         PriceClass: PriceClass_100
 
         # Use same aliases as current distribution
-        Aliases: !If
-          - UseCustomDomain
-          - !Split [",", !Ref DomainName]
-          - !Ref "AWS::NoValue"
+        Aliases: []
 
         Origins:
           - Id: !Ref S3WebsiteBucket   # Matches existing distribution
@@ -205,18 +202,7 @@ Resources:
               LambdaFunctionARN: !Ref RewriteFunctionVersion
 
         ViewerCertificate:
-          AcmCertificateArn: !If
-            - UseCustomDomain
-            - !Ref ACMCertificate
-            - !Ref "AWS::NoValue"
-          CloudFrontDefaultCertificate: !If
-            - UseCustomDomain
-            - !Ref "AWS::NoValue"
-            - true
-          SslSupportMethod: !If
-            - UseCustomDomain
-            - sni-only
-            - !Ref "AWS::NoValue"
+          CloudFrontDefaultCertificate: true
 
 Outputs:
   CloudfrontDistID:

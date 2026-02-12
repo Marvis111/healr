@@ -51,8 +51,7 @@ jobs:
             echo "EXISTS=false" >> $GITHUB_ENV
           fi
 
-      - name: Deploy stack if missing
-        if: env.EXISTS == 'false'
+      - name: Deploy stack
         uses: aws-actions/aws-cloudformation-github-deploy@v1
         with:
           name: ${{ env.STACK_NAME }}
