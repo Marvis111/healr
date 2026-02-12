@@ -15,20 +15,11 @@ permissions:
 
 jobs:
   deploy:
-    name: Deploy landing page
     runs-on: ubuntu-latest
-    env:
-      ENVIRONMENT: ${{ github.event.inputs.environment }}
     steps:
-      # --------------------------------------------
-      # 1️⃣ Checkout code
-      # --------------------------------------------
-      - name: Checkout
+      - name: Checkout code
         uses: actions/checkout@v5
 
-      # --------------------------------------------
-      # 2️⃣ Configure AWS credentials
-      # --------------------------------------------
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v5
         with:
@@ -36,94 +27,61 @@ jobs:
           aws-region: ${{ secrets.AWS_REGION }}
           role-session-name: GitHub-OIDC
 
-      # --------------------------------------------
-      # 3️⃣ Set environment variables
-      # --------------------------------------------
       - name: Set environment variables
         run: |
-          if [ "${{ env.ENVIRONMENT }}" = "dev" ]; then
-            echo "DOMAIN_NAME=staging.healr.ng" >> $GITHUB_ENV
-            echo "CF_TEMPLATE=cloudformation/staging-template.yml" >> $GITHUB_ENV
+          ENVIRONMENT=${{ github.event.inputs.environment }}
+          if [ "$ENVIRONMENT" = "dev" ]; then
+            DOMAIN_NAME=staging.healr.ng
           else
-            echo "DOMAIN_NAME=healr.ng,www.healr.ng" >> $GITHUB_ENV
-            echo "CF_TEMPLATE=cloudformation/template.yml" >> $GITHUB_ENV
+            DOMAIN_NAME="healr.ng,www.healr.ng"
           fi
-          echo "STACK_NAME=healr-landingpage-${{ env.ENVIRONMENT }}-stack" >> $GITHUB_ENV
+          echo "ENVIRONMENT=$ENVIRONMENT" >> $GITHUB_ENV
+          echo "DOMAIN_NAME=$DOMAIN_NAME" >> $GITHUB_ENV
+          STACK_NAME=healr-landingpage-$ENVIRONMENT-stack
+          echo "STACK_NAME=$STACK_NAME" >> $GITHUB_ENV
 
-      # --------------------------------------------
-      # 4️⃣ Check if CloudFormation stack exists
-      # --------------------------------------------
       - name: Check if stack exists
         id: check_stack
         run: |
           set +e
-          STACK_STATUS=$(aws cloudformation describe-stacks \
-            --stack-name $STACK_NAME \
-            --query "Stacks[0].StackStatus" --output text 2>/dev/null)
-          if [[ "$STACK_STATUS" == "None" ]]; then
-            echo "exists=false" >> $GITHUB_ENV
+          aws cloudformation describe-stacks --stack-name $STACK_NAME --query "Stacks[0].StackStatus" --output text
+          if [ $? -eq 0 ]; then
+            echo "EXISTS=true" >> $GITHUB_ENV
           else
-            echo "exists=true" >> $GITHUB_ENV
+            echo "EXISTS=false" >> $GITHUB_ENV
           fi
-          echo "Stack status: $STACK_STATUS"
 
-      # --------------------------------------------
-      # 5️⃣ Deploy stack only if it doesn't exist
-      # --------------------------------------------
-      - name: Deploy CloudFormation stack (if not exists)
-        if: env.exists == 'false'
+      - name: Deploy stack if missing
+        if: env.EXISTS == 'false'
         uses: aws-actions/aws-cloudformation-github-deploy@v1
         with:
           name: ${{ env.STACK_NAME }}
-          template: ${{ env.CF_TEMPLATE }}
+          template: cloudformation/template.yml
           capabilities: CAPABILITY_NAMED_IAM
-          no-fail-on-empty-changeset: "1"
           parameter-overrides: |
             Env=${{ env.ENVIRONMENT }}
             ProjectId=healr
             DomainName=${{ env.DOMAIN_NAME }}
             ACMCertificate=${{ secrets.ACM_CERTIFICATE_ARN }}
-          tags: '[ { "Key": "Environment", "Value": "${{ env.ENVIRONMENT }}" }, { "Key": "ProjectId", "Value": "healr" } ]'
 
-      # --------------------------------------------
-      # 6️⃣ Get stack outputs (S3 bucket + CloudFront ID)
-      # --------------------------------------------
-      - name: Get stack outputs
-        id: outputs
+      - name: Get S3 bucket and CloudFront info
         run: |
-          STACK_OUTPUTS=$(aws cloudformation describe-stacks --stack-name $STACK_NAME --query "Stacks[0].Outputs" --output json)
-          echo "Stack outputs retrieved"
-
-          # Extract S3 bucket and CloudFront distribution ID
-          S3_BUCKET=$(echo "$STACK_OUTPUTS" | jq -r '.[] | select(.OutputKey=="S3BucketName") | .OutputValue')
-          CF_DIST_ID=$(echo "$STACK_OUTPUTS" | jq -r '.[] | select(.OutputKey=="CloudfrontDistID") | .OutputValue')
-          CF_DOMAIN=$(echo "$STACK_OUTPUTS" | jq -r '.[] | select(.OutputKey=="CloudfrontDomainName") | .OutputValue')
-
-          # Export as GitHub Actions environment variables
+          OUTPUTS=$(aws cloudformation describe-stacks --stack-name $STACK_NAME --query "Stacks[0].Outputs" --output json)
+          S3_BUCKET=$(echo "$OUTPUTS" | jq -r '.[] | select(.OutputKey=="S3BucketName") | .OutputValue')
+          CF_DIST_ID=$(echo "$OUTPUTS" | jq -r '.[] | select(.OutputKey=="CloudfrontDistID") | .OutputValue')
+          CF_DOMAIN=$(echo "$OUTPUTS" | jq -r '.[] | select(.OutputKey=="CloudfrontDomainName") | .OutputValue')
           echo "S3_BUCKET=$S3_BUCKET" >> $GITHUB_ENV
           echo "CF_DIST_ID=$CF_DIST_ID" >> $GITHUB_ENV
           echo "CF_DOMAIN=$CF_DOMAIN" >> $GITHUB_ENV
 
-      # --------------------------------------------
-      # 7️⃣ Sync content to S3
-      # --------------------------------------------
-      - name: Sync landing page to S3
+      - name: Upload content to S3
         run: |
-          echo "Uploading content to S3 bucket: $S3_BUCKET"
           aws s3 sync ./ s3://$S3_BUCKET --delete
 
-      # --------------------------------------------
-      # 8️⃣ Invalidate CloudFront cache
-      # --------------------------------------------
-      - name: Invalidate CloudFront cache
+      - name: Invalidate CloudFront
         run: |
-          echo "Invalidating CloudFront distribution: $CF_DIST_ID"
           aws cloudfront create-invalidation --distribution-id $CF_DIST_ID --paths "/*"
 
-      # --------------------------------------------
-      # 9️⃣ Output the CloudFront domain
-      # --------------------------------------------
-      - name: Print CloudFront URL
+      - name: Print live URL
         run: |
-          CF_DOMAIN=$(echo $STACK_OUTPUTS | jq -r '.[] | select(.OutputKey=="CloudfrontDomainName") | .OutputValue')
-          echo "Landing page deployed at: https://$CF_DOMAIN"
+          echo "Landing page deployed: https://$CF_DOMAIN"
