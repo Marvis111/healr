@@ -66,7 +66,6 @@ jobs:
             Env=${{ env.environment }},
             ProjectId=healr,
             DomainName=${{ env.domain_name }},
-            Nonce=${{ env.timestamp }},
             ACMCertificate="${{ secrets.ACM_CERTIFICATE_ARN }}"
           tags: '[ { "Key": "Environment", "Value": "${{ env.environment }}" }, { "Key": "ProjectId", "Value": "healr" }]'
 
