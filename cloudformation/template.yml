@@ -88,11 +88,34 @@ Resources:
             const regexTrailingSlash = /.+\/$/; // e.g. "/some/" or "/some/page/" but not root "/"
             const { request } = event.Records[0].cf
             const uri = request.uri;
+            const headers = request.headers;
+
+            // Handle /book smart link redirection
+            if (uri === '/book' || uri === '/book/') {
+                const ua = headers['user-agent'] ? headers['user-agent'][0].value.toLowerCase() : '';
+                if (ua.indexOf('android') > -1) {
+                    return {
+                        status: '302',
+                        statusDescription: 'Found',
+                        headers: { 'location': [{ key: 'Location', value: 'https://play.google.com/store/apps/details?id=com.myzoda.healr' }] }
+                    };
+                }
+                if (ua.indexOf('iphone') > -1 || ua.indexOf('ipad') > -1 || ua.indexOf('ipod') > -1) {
+                    return {
+                        status: '302',
+                        statusDescription: 'Found',
+                        headers: { 'location': [{ key: 'Location', value: 'https://apps.apple.com/ng/app/healr-app/id6752496528' }] }
+                    };
+                }
+                // Desktop fallback: Rewrite to profile page
+                request.uri = '/doctor/profile.html';
+                return request;
+            }
 
             // Append ".html" to origin request
             if (suffix && uri.match(regexSuffixless)) {
-                // Special case for routing
-                if (uri.startsWith('/doctor/') || uri === '/book' || uri === '/book/') {
+                // Special case for clean doctor profile URLs
+                if (uri.startsWith('/doctor/')) {
                     request.uri = '/doctor/profile.html';
                 } else {
                     request.uri = uri + suffix;
@@ -198,6 +221,8 @@ Resources:
           - OPTIONS
           # https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/using-managed-cache-policies.html
           CachePolicyId: 658327ea-f89d-4fab-a63d-7e88639e58f6
+          # Forward User-Agent to Lambda for OS detection
+          OriginRequestPolicyId: ac730560-453b-4458-9a3d-495ccf3a1d9b
           TargetOriginId: !Ref S3WebsiteBucket
           ViewerProtocolPolicy: redirect-to-https
           LambdaFunctionAssociations:
