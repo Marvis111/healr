@@ -92,11 +92,17 @@ jobs:
         id: outputs
         run: |
           STACK_OUTPUTS=$(aws cloudformation describe-stacks --stack-name $STACK_NAME --query "Stacks[0].Outputs" --output json)
-          echo "STACK_OUTPUTS=$STACK_OUTPUTS" >> $GITHUB_ENV
-          export S3_BUCKET=$(echo $STACK_OUTPUTS | jq -r '.[] | select(.OutputKey=="S3BucketName") | .OutputValue')
-          export CF_DIST_ID=$(echo $STACK_OUTPUTS | jq -r '.[] | select(.OutputKey=="CloudfrontDistID") | .OutputValue')
+          echo "Stack outputs retrieved"
+
+          # Extract S3 bucket and CloudFront distribution ID
+          S3_BUCKET=$(echo "$STACK_OUTPUTS" | jq -r '.[] | select(.OutputKey=="S3BucketName") | .OutputValue')
+          CF_DIST_ID=$(echo "$STACK_OUTPUTS" | jq -r '.[] | select(.OutputKey=="CloudfrontDistID") | .OutputValue')
+          CF_DOMAIN=$(echo "$STACK_OUTPUTS" | jq -r '.[] | select(.OutputKey=="CloudfrontDomainName") | .OutputValue')
+
+          # Export as GitHub Actions environment variables
           echo "S3_BUCKET=$S3_BUCKET" >> $GITHUB_ENV
           echo "CF_DIST_ID=$CF_DIST_ID" >> $GITHUB_ENV
+          echo "CF_DOMAIN=$CF_DOMAIN" >> $GITHUB_ENV
 
       # --------------------------------------------
       # 7️⃣ Sync content to S3
