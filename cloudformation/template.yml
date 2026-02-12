@@ -1,100 +1,69 @@
 AWSTemplateFormatVersion: 2010-09-09
-Description: HealR static landing page (S3 + CloudFront + Lambda@Edge) - in-place update safe
+Description: 'CloudFormation template for a static website hosted on S3 with CloudFront'
 
 Parameters:
   Env:
     Type: String
-    Description: Deployment environment (dev, prod)
-
+    Description: "Environment (dev/prod)"
   ProjectId:
     Type: String
-    Description: Project identifier
-    Default: healr
-
-  AttachCNAME:
-    Type: Boolean
-    Description: Whether to attach a CNAME to the CloudFront distribution
-    Default: false
-
+    Description: "Project ID"
   DomainName:
     Type: String
     Default: ""
-    Description: Comma-separated domain names (healr.ng,www.healr.ng)
-
+    Description: "Comma-separated custom domain names"
   ACMCertificate:
     Type: String
     Default: ""
-    Description: ACM certificate ARN (must be in us-east-1 for CloudFront)
+    Description: "ACM certificate ARN"
+  AttachCNAME:
+    Type: String
+    Default: "false"
+    Description: "Set to true to attach custom domain and ACM certificate"
 
 Conditions:
-  UseCNAMEAlias: !And [!Equals [!Ref AttachCNAME, "true"], !Not [!Equals [!Ref DomainName, ""]]]
+  UseCNAMEAlias: !And 
+    - !Equals [!Ref AttachCNAME, "true"]
+    - !Not [!Equals [!Ref DomainName, ""]]
 
 Resources:
 
-  ############################################################
-  # S3 Bucket (Private)
-  ############################################################
-
+  # S3 Bucket for the static website
   S3WebsiteBucket:
     Type: AWS::S3::Bucket
     Properties:
       BucketName: !Sub "${ProjectId}-${Env}-${AWS::AccountId}"
-      PublicAccessBlockConfiguration:
-        BlockPublicAcls: true
-        BlockPublicPolicy: true
-        IgnorePublicAcls: true
-        RestrictPublicBuckets: true
 
-  ############################################################
-  # CloudFront Origin Access Identity
-  ############################################################
-
-  CloudFrontOAI:
+  # Origin Access Identity for CloudFront
+  CloudFrontOriginIdentity:
     Type: AWS::CloudFront::CloudFrontOriginAccessIdentity
     Properties:
       CloudFrontOriginAccessIdentityConfig:
-        Comment: !Sub "${ProjectId}-${Env}-OAI"
+        Comment: "Origin access identity for ${ProjectId}-${Env}"
 
+  # S3 bucket policy to allow CloudFront read access
   S3BucketPolicy:
     Type: AWS::S3::BucketPolicy
     Properties:
       Bucket: !Ref S3WebsiteBucket
       PolicyDocument:
-        Version: "2012-10-17"
+        Version: '2012-10-17'
         Statement:
           - Effect: Allow
             Principal:
-              AWS: !Sub "arn:aws:iam::cloudfront:user/CloudFront Origin Access Identity ${CloudFrontOAI}"
-            Action: s3:GetObject
+              AWS: !Sub "arn:aws:iam::cloudfront:user/CloudFront Origin Access Identity ${CloudFrontOriginIdentity}"
+            Action:
+              - s3:GetObject
             Resource: !Sub "arn:aws:s3:::${S3WebsiteBucket}/*"
 
-  ############################################################
-  # Lambda@Edge Rewrite Function
-  ############################################################
-
-  RewriteFunctionRole:
-    Type: AWS::IAM::Role
-    Properties:
-      AssumeRolePolicyDocument:
-        Version: "2012-10-17"
-        Statement:
-          - Effect: Allow
-            Principal:
-              Service:
-                - edgelambda.amazonaws.com
-                - lambda.amazonaws.com
-            Action: sts:AssumeRole
-      ManagedPolicyArns:
-        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
-
-  RewriteFunction:
+  # Lambda function for URL rewriting (optional)
+  URLRewriteFunction:
     Type: AWS::Lambda::Function
     Properties:
-      Description: HealR URI rewrite for static routing
-      Runtime: nodejs18.x
       Handler: index.handler
-      Role: !GetAtt RewriteFunctionRole.Arn
+      Runtime: nodejs16.x
       MemorySize: 128
+      Role: !GetAtt URLRewriteFunctionExecutionRole.Arn
       Code:
         ZipFile: |
           exports.handler = async (event) => {
@@ -163,58 +132,70 @@ Resources:
             }
             return request;
           };
-  RewriteFunctionVersion:
-    Type: AWS::Lambda::Version
+
+  URLRewriteFunctionExecutionRole:
+    Type: AWS::IAM::Role
     Properties:
-      FunctionName: !Ref RewriteFunction
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - edgelambda.amazonaws.com
+                - lambda.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
 
-  ############################################################
-  # CloudFront Distribution (In-Place Update Safe)
-  ############################################################
-
+  # CloudFront distribution
   CloudFrontDistribution:
     Type: AWS::CloudFront::Distribution
     Properties:
       DistributionConfig:
-        Aliases: !If [UseCNAMEAlias, !Split [",", !Ref DomainName], !Ref "AWS::NoValue"]
-        ViewerCertificate:
-          AcmCertificateArn: !If [UseCNAMEAlias, !Ref ACMCertificate, !Ref "AWS::NoValue"]
-          CloudFrontDefaultCertificate: !If [UseCNAMEAlias, true, !Ref "AWS::NoValue"]
-
-        # Use same aliases as current distribution
-        Aliases: !If [UseCNAMEAlias, !Split [",", !Ref DomainName], !Ref "AWS::NoValue"]
-
+        Enabled: true
+        Comment: !Sub "${ProjectId}-${Env}-distribution"
+        DefaultRootObject: index.html
         Origins:
-          - Id: !Ref S3WebsiteBucket   # Matches existing distribution
+          - Id: !Ref S3WebsiteBucket
             DomainName: !GetAtt S3WebsiteBucket.DomainName
             S3OriginConfig:
-              OriginAccessIdentity: !Sub "origin-access-identity/cloudfront/${CloudFrontOAI}"
-
+              OriginAccessIdentity: !Sub "origin-access-identity/cloudfront/${CloudFrontOriginIdentity}"
         DefaultCacheBehavior:
-          TargetOriginId: !Ref S3WebsiteBucket   # Matches existing distribution
+          TargetOriginId: !Ref S3WebsiteBucket
           ViewerProtocolPolicy: redirect-to-https
           AllowedMethods:
             - GET
             - HEAD
             - OPTIONS
-
-          # Managed policies
           CachePolicyId: 658327ea-f89d-4fab-a63d-7e88639e58f6
-          OriginRequestPolicyId: 88a5eaf4-2fd4-4709-b370-b4c650ea3fcf
-
           LambdaFunctionAssociations:
             - EventType: origin-request
-              LambdaFunctionARN: !Ref RewriteFunctionVersion
-
+              LambdaFunctionARN: !GetAtt URLRewriteFunction.Arn
+        Aliases: !If [UseCNAMEAlias, !Split [",", !Ref DomainName], !Ref "AWS::NoValue"]
         ViewerCertificate:
-          CloudFrontDefaultCertificate: true
+          AcmCertificateArn: !If [UseCNAMEAlias, !Ref ACMCertificate, !Ref "AWS::NoValue"]
+          CloudFrontDefaultCertificate: !If [UseCNAMEAlias, !Ref "AWS::NoValue", true]
+          SslSupportMethod: !If [UseCNAMEAlias, "sni-only", !Ref "AWS::NoValue"]
+        HttpVersion: http2
+        PriceClass: PriceClass_100
+        CustomErrorResponses:
+          - ErrorCode: 403
+            ResponseCode: 404
+            ResponsePagePath: /index.html
+          - ErrorCode: 404
+            ResponseCode: 404
+            ResponsePagePath: /index.html
 
 Outputs:
-  CloudfrontDistID:
-    Value: !Ref CloudFrontDistribution
-
-  CloudfrontDomainName:
-    Value: !GetAtt CloudFrontDistribution.DomainName
-
   S3BucketName:
     Value: !Ref S3WebsiteBucket
+    Description: "S3 Bucket Name"
+
+  CloudFrontDistributionID:
+    Value: !Ref CloudFrontDistribution
+    Description: "CloudFront Distribution ID"
+
+  CloudFrontDomainName:
+    Value: !GetAtt CloudFrontDistribution.DomainName
+    Description: "CloudFront Domain Name"
