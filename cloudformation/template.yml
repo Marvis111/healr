@@ -137,13 +137,13 @@ Resources:
           - !Ref "AWS::NoValue"
 
         Origins:
-          - Id: S3Origin
+          - Id: !Ref S3WebsiteBucket
             DomainName: !GetAtt S3WebsiteBucket.DomainName
             S3OriginConfig:
               OriginAccessIdentity: !Sub "origin-access-identity/cloudfront/${CloudFrontOAI}"
 
         DefaultCacheBehavior:
-          TargetOriginId: S3Origin
+          TargetOriginId: !Ref S3WebsiteBucket
           ViewerProtocolPolicy: redirect-to-https
           AllowedMethods:
             - GET
