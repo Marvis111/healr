@@ -60,8 +60,7 @@ jobs:
           parameter-overrides: |
             Env=${{ env.ENVIRONMENT }}
             ProjectId=healr
-            DomainName=${{ env.DOMAIN_NAME }}
-            ACMCertificate=${{ secrets.ACM_CERTIFICATE_ARN }}
+            AttachCNAME=false
 
       - name: Get S3 bucket and CloudFront info
         run: |

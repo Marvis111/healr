@@ -11,6 +11,11 @@ Parameters:
     Description: Project identifier
     Default: healr
 
+  AttachCNAME:
+    Type: Boolean
+    Description: Whether to attach a CNAME to the CloudFront distribution
+    Default: false
+
   DomainName:
     Type: String
     Default: ""
@@ -22,7 +27,7 @@ Parameters:
     Description: ACM certificate ARN (must be in us-east-1 for CloudFront)
 
 Conditions:
-  UseCustomDomain: !Not [!Equals [!Ref DomainName, ""]]
+  UseCNAMEAlias: !And [!Equals [!Ref AttachCNAME, "true"], !Not [!Equals [!Ref DomainName, ""]]]
 
 Resources:
 
@@ -171,14 +176,13 @@ Resources:
     Type: AWS::CloudFront::Distribution
     Properties:
       DistributionConfig:
-        Comment: !Sub "${ProjectId}-${Env}-distribution"
-        Enabled: true
-        DefaultRootObject: index.html
-        HttpVersion: http2
-        PriceClass: PriceClass_100
+        Aliases: !If [UseCNAMEAlias, !Split [",", !Ref DomainName], !Ref "AWS::NoValue"]
+        ViewerCertificate:
+          AcmCertificateArn: !If [UseCNAMEAlias, !Ref ACMCertificate, !Ref "AWS::NoValue"]
+          CloudFrontDefaultCertificate: !If [UseCNAMEAlias, true, !Ref "AWS::NoValue"]
 
         # Use same aliases as current distribution
-        Aliases: []
+        Aliases: !If [UseCNAMEAlias, !Split [",", !Ref DomainName], !Ref "AWS::NoValue"]
 
         Origins:
           - Id: !Ref S3WebsiteBucket   # Matches existing distribution
