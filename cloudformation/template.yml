@@ -109,9 +109,54 @@ Resources:
               return request;
             }
 
+            // Serve .well-known files for assetlinks.json and apple-app-site-association
+            if (
+              uri === "/.well-known/assetlinks.json" ||
+              uri === "/.well-known/apple-app-site-association"
+            ) {
+              // Only allow these filenames, otherwise treat as not found
+              const safeFilenames = ["assetlinks.json", "apple-app-site-association"];
+              const filename = uri.split("/").pop();
+
+              if (!safeFilenames.includes(filename)) {
+                // If not an allowed file, just return the original request
+                return request;
+              }
+
+              // Build the full file path
+              const path = require('path');
+              const fs = require('fs');
+
+              const wellKnownDir = path.join(__dirname, '.well-known');
+              const filePath = path.join(wellKnownDir, filename);
+
+              try {
+                const body = fs.readFileSync(filePath, "utf8");
+                return {
+                  status: '200',
+                  statusDescription: 'OK',
+                  headers: {
+                    'cache-control': [{ key: 'Cache-Control', value: 'public, max-age=3600' }],
+                    'content-type': [{ key: 'Content-Type', value: 'application/json' }],
+                  },
+                  body: body,
+                  bodyEncoding: 'text',
+                };
+              } catch (e) {
+                // If the file doesn't exist, return a 404
+                return {
+                  status: '404',
+                  statusDescription: 'Not Found',
+                  headers: {
+                    'content-type': [{ key: 'Content-Type', value: 'application/json' }],
+                  },
+                  body: JSON.stringify({ error: "File not found" }),
+                  bodyEncoding: 'text'
+                };
+              }
+            }
             return request;
           };
-
   RewriteFunctionVersion:
     Type: AWS::Lambda::Version
     Properties:
