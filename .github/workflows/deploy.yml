@@ -7,7 +7,6 @@ on:
         description: "Environment to deploy to"
         type: choice
         options:
-          - dev
           - prod
 
 permissions:
@@ -73,6 +72,7 @@ jobs:
       - name: Upload Artifact to S3 Bucket
         run: |
           aws s3 sync ./ s3://${{ steps.deploy.outputs.S3BucketName }} --delete
+          aws s3 cp .well-known/apple-app-site-association s3://${{ steps.deploy.outputs.S3BucketName }}/.well-known/apple-app-site-association --content-type application/json
 
       - name: Invalidate CloudFront Cache
         run: |
