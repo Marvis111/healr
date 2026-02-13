@@ -90,14 +90,25 @@ Resources:
             const uri = request.uri;
             const headers = request.headers;
 
-            // Handle .well-known assets
-            if (uri.startsWith("/.well-known/")) {
-              return request;
-            }
-
-            // Handle /book smart link routing
+            // Handle /book smart link redirection
             if (uri === '/book' || uri === '/book/') {
-                request.uri = '/book.html';
+                const ua = headers['user-agent'] ? headers['user-agent'][0].value.toLowerCase() : '';
+                if (ua.indexOf('android') > -1) {
+                    return {
+                        status: '302',
+                        statusDescription: 'Found',
+                        headers: { 'location': [{ key: 'Location', value: 'https://play.google.com/store/apps/details?id=com.myzoda.healr' }] }
+                    };
+                }
+                if (ua.indexOf('iphone') > -1 || ua.indexOf('ipad') > -1 || ua.indexOf('ipod') > -1) {
+                    return {
+                        status: '302',
+                        statusDescription: 'Found',
+                        headers: { 'location': [{ key: 'Location', value: 'https://apps.apple.com/ng/app/healr-app/id6752496528' }] }
+                    };
+                }
+                // Desktop fallback: Rewrite to profile page
+                request.uri = '/doctor/profile.html';
                 return request;
             }
 
