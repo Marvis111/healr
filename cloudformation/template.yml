@@ -81,38 +81,43 @@ Resources:
       Code:
         ZipFile: |
           exports.handler = async (event) => {
-            const request = event.Records[0].cf.request;
+            const suffix = '.html';
+            const appendToDirs = 'index.html';
+            const removeTrailingSlash = false;
+            const regexSuffixless = /\/[^/.]+$/; // e.g. "/some/page" but not "/", "/some/" or "/some.jpg"
+            const regexTrailingSlash = /.+\/$/; // e.g. "/some/" or "/some/page/" but not root "/"
+            const { request } = event.Records[0].cf
             const uri = request.uri;
 
-            // Special handling for serving .well-known/apple-app-site-association
-            if (uri === "/.well-known/apple-app-site-association") {
-              // Serve without modification, as a flat JSON (not as .html)
-              request.uri = uri; // Explicitly ensure uri is not altered
+            // Handle .well-known assets
+            if (uri.startsWith("/.well-known/")) {
               return request;
             }
 
-            // Special handling for .well-known/assetlinks.json
-            if (uri === "/.well-known/assetlinks.json") {
-              request.uri = uri;
-              return request;
+            // Handle /book smart link routing
+            if (uri === '/book' || uri === '/book/') {
+                request.uri = '/book.html';
+                return request;
             }
 
-            // Rule for pretty URLs without extension: add .html
-            if (uri.match(/\/[^/.]+$/)) {
-              if (uri.startsWith('/doctor/')) {
-                request.uri = '/doctor/profile.html';
-              } else {
-                request.uri = uri + '.html';
-              }
-              return request;
+            // Append ".html" to origin request
+            if (suffix && uri.match(regexSuffixless)) {
+                // Special case for clean doctor profile URLs
+                if (uri.startsWith('/doctor/')) {
+                    request.uri = '/doctor/profile.html';
+                } else {
+                    request.uri = uri + suffix;
+                }
+                return request;
+            }
+            
+            // Append "index.html" to origin request
+            if (appendToDirs && uri.match(regexTrailingSlash)) {
+                request.uri = uri + appendToDirs;
+                return request;
             }
 
-            // Rule for trailing slash: map to index.html
-            if (uri.match(/.+\/$/)) {
-              request.uri = uri + 'index.html';
-              return request;
-            }
-
+            // If nothing matches, return request unchanged
             return request;
           };
       Handler: index.handler
