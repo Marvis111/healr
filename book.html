@@ -1,0 +1,269 @@
+<!doctype html>
+<html class="no-js" lang="en">
+
+<head>
+    <title>Connecting to HealR...</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="author" content="HealR">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <meta name="description" content="Connecting you to your consultation on HealR.">
+    <!-- favicon icon -->
+    <link rel="shortcut icon" href="assets/img/logo/fav.svg">
+    <link rel="apple-touch-icon" href="assets/img/logo/fav.svg">
+    <link rel="apple-touch-icon" sizes="72x72" href="assets/img/logo/fav.svg">
+    <meta name="theme-color" content="#4285f4">
+
+    <!-- Google Fonts - Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --primary-color: #3898CB;
+            --primary-bg: #F0F9FF;
+            --text-dark: #232323;
+            --text-gray: #5A5959;
+            --font-main: 'Inter', system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: var(--font-main);
+            background-color: white;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .container {
+            text-align: center;
+            padding: 2rem;
+            max-width: 400px;
+            width: 100%;
+        }
+
+        .loader-logo-container {
+            position: relative;
+            margin-bottom: 2.5rem;
+            display: inline-block;
+        }
+
+        .loader-pulse {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: var(--primary-bg);
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            animation: ripple 2s ease-out infinite;
+        }
+
+        @keyframes ripple {
+            0% {
+                width: 60px;
+                height: 60px;
+                opacity: 1;
+            }
+
+            100% {
+                width: 160px;
+                height: 160px;
+                opacity: 0;
+            }
+        }
+
+        @keyframes bounce-soft {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+
+        .logo-img {
+            width: 60px;
+            height: 60px;
+            position: relative;
+            z-index: 10;
+            animation: bounce-soft 2s ease-in-out infinite;
+        }
+
+        h1 {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--text-dark);
+            margin-bottom: 0.75rem;
+        }
+
+        p {
+            color: var(--text-gray);
+            font-size: 1rem;
+            line-height: 1.5;
+            margin: 0;
+        }
+
+        .status-dot {
+            display: inline-block;
+            width: 4px;
+            height: 4px;
+            background: var(--primary-color);
+            border-radius: 50%;
+            margin: 0 2px;
+            animation: dot-pulse 1.5s infinite;
+        }
+
+        .status-dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .status-dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes dot-pulse {
+
+            0%,
+            100% {
+                transform: scale(1);
+                opacity: 0.3;
+            }
+
+            50% {
+                transform: scale(1.5);
+                opacity: 1;
+            }
+        }
+
+        /* App Store Buttons for quick manual fallback */
+        .store-buttons {
+            display: none;
+            /* Hidden by default, shown if auto-redirect fails */
+            margin-top: 2rem;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .store-btn {
+            background: #000;
+            color: white;
+            padding: 0.85rem;
+            border-radius: 0.75rem;
+            font-weight: 600;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            transition: transform 0.2s;
+        }
+
+        .store-btn:active {
+            transform: scale(0.98);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="loader-logo-container">
+            <div class="loader-pulse"></div>
+            <img src="assets/img/logo/fav.svg" alt="HealR" class="logo-img">
+        </div>
+
+        <div id="status-content">
+            <h1>Opening HealR</h1>
+            <p>Please wait while we connect you
+                <span class="status-dot"></span>
+                <span class="status-dot"></span>
+                <span class="status-dot"></span>
+            </p>
+        </div>
+
+        <div id="fallback-ui" class="store-buttons">
+            <p style="margin-bottom: 1.5rem; font-size: 0.9rem;">Still waiting? You can download the app manually to
+                continue.</p>
+            <a id="ios-btn" href="https://apps.apple.com/ng/app/healr-app/id6752496528" class="store-btn">
+                <i class="fab fa-apple" style="font-size: 1.5rem;"></i>
+                <div style="text-align: left; line-height: 1.2;">
+                    <div style="font-size: 0.7rem; font-weight: 400; opacity: 0.8;">Download on the</div>
+                    <div style="font-size: 1.1rem;">App Store</div>
+                </div>
+            </a>
+            <a id="android-btn" href="https://play.google.com/store/apps/details?id=com.myzoda.healr" class="store-btn">
+                <i class="fab fa-google-play" style="font-size: 1.25rem;"></i>
+                <div style="text-align: left; line-height: 1.2;">
+                    <div style="font-size: 0.7rem; font-weight: 400; opacity: 0.8;">GET IT ON</div>
+                    <div style="font-size: 1.1rem;">Google Play</div>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const urlParams = new URLSearchParams(window.location.search);
+            const username = urlParams.get('username');
+
+            const androidStore = 'https://play.google.com/store/apps/details?id=com.myzoda.healr';
+            const iosStore = 'https://apps.apple.com/ng/app/healr-app/id6752496528';
+            const deepLink = `healr://book?username=${username}`;
+
+            // Detect OS
+            const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+            const isAndroid = /android/i.test(userAgent);
+            const isIOS = /iPad|iPhone|iPod/.test(userAgent) && !window.MSStream;
+
+            if (isAndroid || isIOS) {
+                // We are on mobile and the app didn't open (otherwise we wouldn't be here)
+                // So we should redirect to the store.
+
+                const start = Date.now();
+                let redirectTimer;
+
+                // Attempt to trigger the deep link again just in case (e.g. if hit by manual URL entry)
+                window.location.href = deepLink;
+
+                redirectTimer = setTimeout(() => {
+                    const elapsed = Date.now() - start;
+                    // If the browser didn't go into background (elapsed < 5s)
+                    if (!document.hidden && elapsed < 5000) {
+                        window.location.href = isAndroid ? androidStore : iosStore;
+
+                        // Show store buttons if redirect still fails after 3s
+                        setTimeout(() => {
+                            document.getElementById('fallback-ui').style.display = 'flex';
+                        }, 3000);
+                    }
+                }, 3000);
+
+                // Cancel if user leaves page
+                const clear = () => clearTimeout(redirectTimer);
+                window.addEventListener('blur', clear);
+                window.addEventListener('visibilitychange', clear);
+            } else {
+                // Desktop - Redirect to doctor profile page
+                if (username) {
+                    window.location.href = `/doctor/${username}`;
+                } else {
+                    window.location.href = '/';
+                }
+            }
+        });
+    </script>
+</body>
+
+</html>
