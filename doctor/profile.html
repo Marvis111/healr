@@ -1486,32 +1486,28 @@
                 const isIOS = /iPad|iPhone|iPod/.test(userAgent) && !window.MSStream;
 
                 if (isAndroid || isIOS) {
-                    // If this was triggered automatically by landing on /book, 
-                    // it means the App/Universal Link didn't catch, so redirect to store immediately.
-                    if (isAutoTrigger) {
-                        console.log('isAutoTrigger', isAutoTrigger, 'isAndroid', isAndroid, 'isIOS', isIOS);
-                        window.location.href = isAndroid ? androidStore : iosStore;
-                        return;
-                    }
-
                     const start = Date.now();
-                    let redirectTimer;
-                    console.log('deepLink', deepLink);
-                    // Try to open app via direct assignment
-                    window.location.href = deepLink;
+
+                    // Simulate a dedicated link click (more reliable in some browsers than window.location)
+                    const link = document.createElement('a');
+                    link.href = deepLink;
+                    link.style.display = 'none';
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
 
                     // Fallback to store
-                    redirectTimer = setTimeout(() => {
-                        const now = Date.now();
-                        const elapsed = now - start;
+                    const redirectTimer = setTimeout(() => {
+                        const elapsed = Date.now() - start;
                         if (document.hidden || document.visibilityState === 'hidden' || elapsed > 5000) return;
                         window.location.href = isAndroid ? androidStore : iosStore;
                     }, 3500);
 
-                    const clearTimer = () => clearTimeout(redirectTimer);
-                    window.addEventListener('visibilitychange', clearTimer, { once: true });
-                    window.addEventListener('blur', clearTimer, { once: true });
-                    window.addEventListener('pagehide', clearTimer, { once: true });
+                    const clear = () => clearTimeout(redirectTimer);
+                    window.addEventListener('blur', clear, { once: true });
+                    window.addEventListener('visibilitychange', () => {
+                        if (document.hidden) clear();
+                    }, { once: true });
                 } else {
                     // Desktop fallback - Show Modal
                     document.getElementById('app-redirect-modal').classList.add('active');
