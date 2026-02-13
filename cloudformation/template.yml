@@ -98,8 +98,35 @@ Resources:
             const uri = request.uri;
             const headers = request.headers;
             // Handle .well-known assets (Critical for Universal Links/App Links)
-            if (uri.startsWith("/.well-known/")) {
-              return request;
+            // Serving directly with correct Content-Type to avoid S3 MIME issues
+            if (uri === "/.well-known/apple-app-site-association") {
+                return {
+                    status: '200',
+                    statusDescription: 'OK',
+                    headers: { 'content-type': [{ key: 'Content-Type', value: 'application/json' }] },
+                    body: JSON.stringify({
+                        "applinks": { "apps": [], "details": [{ "appID": "V963NY4V83.com.myzoda.healr", "paths": ["*"] }] }
+                    })
+                };
+            }
+            if (uri === "/.well-known/assetlinks.json") {
+                return {
+                    status: '200',
+                    statusDescription: 'OK',
+                    headers: { 'content-type': [{ key: 'Content-Type', value: 'application/json' }] },
+                    body: JSON.stringify([{
+                        "relation": ["delegate_permission/common.handle_all_urls"],
+                        "target": {
+                            "namespace": "android_app",
+                            "package_name": "com.myzoda.healr",
+                            "sha256_cert_fingerprints": [
+                                "78:01:58:8F:11:31:30:2A:EB:98:20:3D:29:1E:B4:BB:62:60:9F:AB:16:DD:39:49:DF:E8:CD:7F:A6:A8:90:CD",
+                                "6D:86:02:23:65:43:BA:D5:76:AA:77:A3:4E:09:3D:80:54:DA:5B:11:B2:C5:7F:CF:FA:FA:B4:B9:AF:B6:D8:C1",
+                                "24:F2:75:DA:E1:41:85:0A:4C:2B:E9:5B:15:7D:CE:1A:8E:E7:A8:AA:1D:FE:A2:4F:63:8D:BF:2E:10:B4:5B:1D"
+                            ]
+                        }
+                    }])
+                };
             }
 
             // Handle /book smart link routing

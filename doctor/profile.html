@@ -1488,7 +1488,7 @@
                 if (isAndroid || isIOS) {
                     const start = Date.now();
 
-                    // Simulate a dedicated link click (more reliable in some browsers than window.location)
+                    // Attempt app opening via navigation
                     const link = document.createElement('a');
                     link.href = deepLink;
                     link.style.display = 'none';
