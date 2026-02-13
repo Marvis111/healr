@@ -80,39 +80,90 @@ Resources:
         Lambda function performing request URI rewriting.
       Code:
         ZipFile: |
+          /**
+           * Lambda@Edge function for CloudFront to rewrite request URIs
+           * - Handles smart redirection for /book paths by device
+           * - Handles .well-known files without modification
+           * - Rewrites pretty extensionless URLs to .html
+           * - Rewrites directory requests to index.html
+           * - (Optionally) strips trailing slash with a redirect (currently disabled)
+           */
           exports.handler = async (event) => {
-            const request = event.Records[0].cf.request;
+            const suffix = '.html';
+            const appendToDirs = 'index.html';
+            const removeTrailingSlash = false;
+            const regexSuffixless = /\/[^/.]+$/; // matches "/some/page" (no extension, not root or trailing slash)
+            const regexTrailingSlash = /.+\/$/; // matches "/dir/" or "/dir/page/", but not "/"
+            const { request } = event.Records[0].cf;
             const uri = request.uri;
+            const headers = request.headers;
 
-            // Special handling for serving .well-known/apple-app-site-association
-            if (uri === "/.well-known/apple-app-site-association") {
-              // Serve without modification, as a flat JSON (not as .html)
-              request.uri = uri; // Explicitly ensure uri is not altered
+            // 1. Smart redirect for /book based on device type
+            if (uri === '/book' || uri === '/book/') {
+              const ua = (headers['user-agent'] && headers['user-agent'][0] && headers['user-agent'][0].value || '').toLowerCase();
+              if (ua.includes('android')) {
+                return {
+                  status: '302',
+                  statusDescription: 'Found',
+                  headers: {
+                    'location': [{ key: 'Location', value: 'https://play.google.com/store/apps/details?id=com.myzoda.healr' }]
+                  }
+                };
+              }
+              if (ua.includes('iphone') || ua.includes('ipad') || ua.includes('ipod')) {
+                return {
+                  status: '302',
+                  statusDescription: 'Found',
+                  headers: {
+                    'location': [{ key: 'Location', value: 'https://apps.apple.com/ng/app/healr-app/id6752496528' }]
+                  }
+                };
+              }
+              // Default/desktop: serve the doctor profile page
+              request.uri = '/doctor/profile.html';
               return request;
             }
 
-            // Special handling for .well-known/assetlinks.json
-            if (uri === "/.well-known/assetlinks.json") {
-              request.uri = uri;
+            // 2. Pass-through for specific .well-known files (no rewrite)
+            if (
+              uri === "/.well-known/apple-app-site-association" ||
+              uri === "/.well-known/assetlinks.json"
+            ) {
+              request.uri = uri; // explicit, though not strictly necessary
               return request;
             }
 
-            // Rule for pretty URLs without extension: add .html
-            if (uri.match(/\/[^/.]+$/)) {
+            // 3. Pretty URL rewrite to .html (e.g., "/about" -> "/about.html")
+            if (regexSuffixless.test(uri)) {
               if (uri.startsWith('/doctor/')) {
                 request.uri = '/doctor/profile.html';
               } else {
-                request.uri = uri + '.html';
+                request.uri = uri + suffix;
               }
               return request;
             }
 
-            // Rule for trailing slash: map to index.html
-            if (uri.match(/.+\/$/)) {
-              request.uri = uri + 'index.html';
+            // 4. (Optional, disabled) Redirect "/page/" => "/page" with 301 if enabled
+            if (removeTrailingSlash && regexTrailingSlash.test(uri)) {
+              return {
+                headers: {
+                  'location': [{
+                    key: 'Location',
+                    value: uri.slice(0, -1)
+                  }]
+                },
+                status: '301',
+                statusDescription: 'Moved Permanently'
+              };
+            }
+
+            // 5. Directory-style URI "/page/" -> "/page/index.html"
+            if (regexTrailingSlash.test(uri)) {
+              request.uri = uri + appendToDirs;
               return request;
             }
 
+            // 6. No rewrite necessary
             return request;
           };
       Handler: index.handler
@@ -191,7 +242,7 @@ Resources:
           TargetOriginId: !Ref S3WebsiteBucket
           ViewerProtocolPolicy: redirect-to-https
           LambdaFunctionAssociations:
-            - EventType: origin-request
+            - EventType: viewer-request
               LambdaFunctionARN: !GetAtt IndexLambdaVersion.FunctionArn
         HttpVersion: http2
         PriceClass: PriceClass_100
