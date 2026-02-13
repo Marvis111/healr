@@ -1489,13 +1489,14 @@
                     // If this was triggered automatically by landing on /book, 
                     // it means the App/Universal Link didn't catch, so redirect to store immediately.
                     if (isAutoTrigger) {
+                        console.log('isAutoTrigger', isAutoTrigger, 'isAndroid', isAndroid, 'isIOS', isIOS);
                         window.location.href = isAndroid ? androidStore : iosStore;
                         return;
                     }
 
                     const start = Date.now();
                     let redirectTimer;
-
+                    console.log('deepLink', deepLink);
                     // Try to open app via direct assignment
                     window.location.href = deepLink;
 
