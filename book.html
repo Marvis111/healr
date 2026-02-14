@@ -239,6 +239,11 @@
         </div>
     </div>
 
+    <!--
+      "Open in HealR App" uses healr:// so the browser hands off to the app.
+      Register in app: iOS URL Types (scheme healr), Android intent-filter (scheme healr, host book).
+      If healr:// is not registered, 2s after tap we open the Universal Link in a new tab as fallback.
+    -->
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const urlParams = new URLSearchParams(window.location.search);
@@ -247,14 +252,10 @@
             const androidStore = 'https://play.google.com/store/apps/details?id=com.myzoda.healr';
             const iosStore = 'https://apps.apple.com/ng/app/healr-app/id6752496528';
 
-            // Use a different host (go.healr.ng) so the browser doesn't treat the link as same-site navigation.
-            // Required: add go.healr.ng to CloudFront aliases, DNS, and app Associated Domains / assetlinks.
-            const openAppHost = 'go.healr.ng';
-            const openAppPath = '/book';
-            const openAppQuery = `username=${encodeURIComponent(username || '')}`;
-            const getPrimaryOpenLink = function () {
-                return `https://${openAppHost}${openAppPath}?${openAppQuery}&t=${Date.now()}`;
-            };
+            const universalLink = 'https://healr.ng/book?username=' + encodeURIComponent(username || '');
+            // Custom scheme is the only reliable way to open the app from in-browser on Samsung/Chrome when
+            // same-domain and cross-subdomain HTTPS links are kept in-browser. Register healr:// in the app.
+            const customSchemeLink = 'healr://book?username=' + encodeURIComponent(username || '');
 
             const userAgent = navigator.userAgent || navigator.vendor || window.opera;
             const isAndroid = /android/i.test(userAgent);
@@ -267,22 +268,29 @@
 
                 if (sessionStorage.getItem('healr_attempted')) {
                     openAppUi.style.display = 'block';
-                    openAppBtn.href = getPrimaryOpenLink();
+                    openAppBtn.href = customSchemeLink;
                     fallbackUi.style.display = 'flex';
                     return;
                 }
 
-                openAppBtn.href = getPrimaryOpenLink();
+                openAppBtn.href = customSchemeLink;
                 openAppBtn.addEventListener('click', function () {
                     sessionStorage.setItem('healr_attempted', 'true');
-                    openAppBtn.href = getPrimaryOpenLink();
+                    var fallbackTimer = setTimeout(function () {
+                        if (!document.hidden) {
+                            window.open(universalLink, '_blank', 'noopener');
+                        }
+                    }, 2000);
+                    window.addEventListener('blur', function clearFallback() {
+                        clearTimeout(fallbackTimer);
+                        window.removeEventListener('blur', clearFallback);
+                    }, { once: true });
+                    window.addEventListener('visibilitychange', function clearFallback() {
+                        if (document.hidden) {
+                            clearTimeout(fallbackTimer);
+                        }
+                    }, { once: true });
                 });
-
-                // Best-effort auto attempt (same host as button so behavior is consistent).
-                const iframe = document.createElement('iframe');
-                iframe.style.display = 'none';
-                iframe.src = getPrimaryOpenLink();
-                document.body.appendChild(iframe);
 
                 openAppUi.style.display = 'block';
 
