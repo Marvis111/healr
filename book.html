@@ -247,9 +247,13 @@
             const androidStore = 'https://play.google.com/store/apps/details?id=com.myzoda.healr';
             const iosStore = 'https://apps.apple.com/ng/app/healr-app/id6752496528';
 
-            const universalLink = `https://healr.ng/book?username=${username || ''}`;
-            const getLaunchLink = function () {
-                return `${universalLink}&launch=1&t=${Date.now()}`;
+            // Use a different host (go.healr.ng) so the browser doesn't treat the link as same-site navigation.
+            // Required: add go.healr.ng to CloudFront aliases, DNS, and app Associated Domains / assetlinks.
+            const openAppHost = 'go.healr.ng';
+            const openAppPath = '/book';
+            const openAppQuery = `username=${encodeURIComponent(username || '')}`;
+            const getPrimaryOpenLink = function () {
+                return `https://${openAppHost}${openAppPath}?${openAppQuery}&t=${Date.now()}`;
             };
 
             const userAgent = navigator.userAgent || navigator.vendor || window.opera;
@@ -263,22 +267,21 @@
 
                 if (sessionStorage.getItem('healr_attempted')) {
                     openAppUi.style.display = 'block';
-                    openAppBtn.href = getLaunchLink();
+                    openAppBtn.href = getPrimaryOpenLink();
                     fallbackUi.style.display = 'flex';
                     return;
                 }
 
-                openAppBtn.href = getLaunchLink();
+                openAppBtn.href = getPrimaryOpenLink();
                 openAppBtn.addEventListener('click', function () {
                     sessionStorage.setItem('healr_attempted', 'true');
-                    // Keep it unique per tap so mobile browsers don't treat as same-page no-op.
-                    openAppBtn.href = getLaunchLink();
+                    openAppBtn.href = getPrimaryOpenLink();
                 });
 
-                // Best-effort auto attempt (often blocked on production – no user gesture).
+                // Best-effort auto attempt (same host as button so behavior is consistent).
                 const iframe = document.createElement('iframe');
                 iframe.style.display = 'none';
-                iframe.src = universalLink;
+                iframe.src = getPrimaryOpenLink();
                 document.body.appendChild(iframe);
 
                 openAppUi.style.display = 'block';
