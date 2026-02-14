@@ -82,7 +82,7 @@ Resources:
         ZipFile: |
           /**
            * Lambda@Edge function for CloudFront to rewrite request URIs
-           * - Handles smart redirection for /book paths by device
+           * - Rewrites /book paths to book.html
            * - Handles .well-known files without modification
            * - Rewrites pretty extensionless URLs to .html
            * - Rewrites directory requests to index.html
@@ -96,31 +96,9 @@ Resources:
             const regexTrailingSlash = /.+\/$/; // matches "/dir/" or "/dir/page/", but not "/"
             const { request } = event.Records[0].cf;
             const uri = request.uri;
-            const headers = request.headers;
-
-            // 1. Smart redirect for /book based on device type
+            // 1. Rewrite /book to book page (client handles deep-link + fallback logic)
             if (uri === '/book' || uri === '/book/') {
-              const ua = (headers['user-agent'] && headers['user-agent'][0] && headers['user-agent'][0].value || '').toLowerCase();
-              if (ua.includes('android')) {
-                return {
-                  status: '302',
-                  statusDescription: 'Found',
-                  headers: {
-                    'location': [{ key: 'Location', value: 'https://play.google.com/store/apps/details?id=com.myzoda.healr' }]
-                  }
-                };
-              }
-              if (ua.includes('iphone') || ua.includes('ipad') || ua.includes('ipod')) {
-                return {
-                  status: '302',
-                  statusDescription: 'Found',
-                  headers: {
-                    'location': [{ key: 'Location', value: 'https://apps.apple.com/ng/app/healr-app/id6752496528' }]
-                  }
-                };
-              }
-              // Default/desktop: serve the doctor profile page
-              request.uri = '/doctor/profile.html';
+              request.uri = '/book.html';
               return request;
             }
 
