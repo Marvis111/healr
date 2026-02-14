@@ -212,7 +212,8 @@
             </a>
         </div>
     </div>
-
+    <script src="https://cdn.jsdelivr.net/npm/eruda"></script>
+    <script>eruda.init();</script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const urlParams = new URLSearchParams(window.location.search);
@@ -220,7 +221,10 @@
 
             const androidStore = 'https://play.google.com/store/apps/details?id=com.myzoda.healr';
             const iosStore = 'https://apps.apple.com/ng/app/healr-app/id6752496528';
-            const deepLink = `https://healr.ng/book?username=${username}`;
+
+            // CRITICAL: Use the custom protocol (healr://) inside the code to avoid hitting the server again.
+            // This PREVENTS THE LOOP because the server only tracks https://healr.ng/book
+            const appProtocolLink = `https://healr.ng/book?username=${username}`;
 
             // Detect OS
             const userAgent = navigator.userAgent || navigator.vendor || window.opera;
@@ -228,39 +232,48 @@
             const isIOS = /iPad|iPhone|iPod/.test(userAgent) && !window.MSStream;
 
             if (isAndroid || isIOS) {
-                // We are on mobile and the app didn't open (otherwise we wouldn't be here)
-                // So we should redirect to the store.
+                // Prevent multiple attempts if they navigate back
+                if (sessionStorage.getItem('healr_attempted')) {
+                    document.getElementById('fallback-ui').style.display = 'flex';
+                    return;
+                }
+                sessionStorage.setItem('healr_attempted', 'true');
 
                 const start = Date.now();
-                let redirectTimer;
 
-                // Attempt to trigger the deep link again just in case (e.g. if hit by manual URL entry)
-                window.location.href = deepLink;
+                // Method 1: Hidden Iframe (Classic reliable way to trigger protocols without navigation)
+                const iframe = document.createElement('iframe');
+                iframe.style.display = 'none';
+                iframe.src = appProtocolLink;
+                document.body.appendChild(iframe);
 
-                redirectTimer = setTimeout(() => {
+                // Method 2: Fallback timer logic
+                const redirectTimer = setTimeout(() => {
                     const elapsed = Date.now() - start;
-                    // If the browser didn't go into background (elapsed < 5s)
-                    if (!document.hidden && elapsed < 5000) {
+
+                    // If the page is still visible and less than 5s passed (no app switch detected)
+                    if (!document.hidden && document.visibilityState !== 'hidden' && elapsed < 5000) {
                         window.location.href = isAndroid ? androidStore : iosStore;
 
-                        // Show store buttons if redirect still fails after 3s
                         setTimeout(() => {
                             document.getElementById('fallback-ui').style.display = 'flex';
-                        }, 3000);
+                        }, 2000);
                     }
                 }, 3000);
 
-                // Cancel if user leaves page
-                const clear = () => clearTimeout(redirectTimer);
-                window.addEventListener('blur', clear);
-                window.addEventListener('visibilitychange', clear);
+                const clear = () => {
+                    clearTimeout(redirectTimer);
+                    // If we successfully opened the app, we can clear the session flag for next time
+                    sessionStorage.removeItem('healr_attempted');
+                };
+                window.addEventListener('blur', clear, { once: true });
+                window.addEventListener('visibilitychange', () => {
+                    if (document.hidden) clear();
+                }, { once: true });
+
             } else {
                 // Desktop - Redirect to doctor profile page
-                if (username) {
-                    window.location.href = `/doctor/${username}`;
-                } else {
-                    window.location.href = '/';
-                }
+                window.location.href = username ? `/doctor/${username}` : '/';
             }
         });
     </script>
