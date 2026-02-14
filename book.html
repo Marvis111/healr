@@ -248,7 +248,6 @@
             const iosStore = 'https://apps.apple.com/ng/app/healr-app/id6752496528';
 
             const universalLink = `https://healr.ng/book?username=${username || ''}`;
-            const customSchemeLink = `healr://book?username=${username || ''}`;
 
             const userAgent = navigator.userAgent || navigator.vendor || window.opera;
             const isAndroid = /android/i.test(userAgent);
@@ -261,12 +260,12 @@
 
                 if (sessionStorage.getItem('healr_attempted')) {
                     openAppUi.style.display = 'block';
-                    openAppBtn.href = customSchemeLink;
+                    openAppBtn.href = universalLink;
                     fallbackUi.style.display = 'flex';
                     return;
                 }
 
-                openAppBtn.href = customSchemeLink;
+                openAppBtn.href = universalLink;
 
                 // Best-effort auto attempt (often blocked on production – no user gesture).
                 const iframe = document.createElement('iframe');
