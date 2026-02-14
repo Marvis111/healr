@@ -1501,7 +1501,7 @@
                         const elapsed = Date.now() - start;
                         if (document.hidden || document.visibilityState === 'hidden' || elapsed > 5000) return;
                         window.location.href = isAndroid ? androidStore : iosStore;
-                    }, 3500);
+                    }, 10000);
 
                     const clear = () => clearTimeout(redirectTimer);
                     window.addEventListener('blur', clear, { once: true });
