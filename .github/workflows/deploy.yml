@@ -8,15 +8,6 @@ on:
         type: choice
         options:
           - prod
-  push:
-    branches:
-      - test
-
-  workflow_run:
-    workflows:
-      - Deploy HealR Landingpage (test)
-    types:
-      - completed
 
 permissions:
   id-token: write # This is required for aws oidc connection
