@@ -148,9 +148,9 @@
             }
         }
 
-        /* Primary "Open in App" button - user gesture required on mobile for deep link to work */
+        /* Primary "Open in App" link – real <a> so tap triggers app open (custom scheme / Universal Link) */
         .open-app-btn {
-            display: none;
+            display: inline-block;
             margin-top: 1.5rem;
             padding: 1rem 1.5rem;
             font-size: 1rem;
@@ -162,8 +162,10 @@
             cursor: pointer;
             font-family: var(--font-main);
             transition: transform 0.2s;
+            text-decoration: none;
         }
 
+        .open-app-btn:hover,
         .open-app-btn:active {
             transform: scale(0.98);
         }
@@ -214,7 +216,7 @@
         </div>
 
         <div id="open-app-ui" style="display: none; margin-top: 1.5rem;">
-            <button type="button" id="open-app-btn" class="open-app-btn">Open in HealR App</button>
+            <a id="open-app-btn" class="open-app-btn" href="#">Open in HealR App</a>
         </div>
 
         <div id="fallback-ui" class="store-buttons">
@@ -245,8 +247,8 @@
             const androidStore = 'https://play.google.com/store/apps/details?id=com.myzoda.healr';
             const iosStore = 'https://apps.apple.com/ng/app/healr-app/id6752496528';
 
-            // Universal Link (iOS/Android) – must be opened from a user gesture to work in production.
             const universalLink = `https://healr.ng/book?username=${username || ''}`;
+            const customSchemeLink = `healr://book?username=${username || ''}`;
 
             const userAgent = navigator.userAgent || navigator.vendor || window.opera;
             const isAndroid = /android/i.test(userAgent);
@@ -259,11 +261,12 @@
 
                 if (sessionStorage.getItem('healr_attempted')) {
                     openAppUi.style.display = 'block';
+                    openAppBtn.href = customSchemeLink;
                     fallbackUi.style.display = 'flex';
                     return;
                 }
 
-                const start = Date.now();
+                openAppBtn.href = customSchemeLink;
 
                 // Best-effort auto attempt (often blocked on production – no user gesture).
                 const iframe = document.createElement('iframe');
@@ -271,36 +274,18 @@
                 iframe.src = universalLink;
                 document.body.appendChild(iframe);
 
-                // Show "Open in HealR App" so user can tap – required for deep link in production.
                 openAppUi.style.display = 'block';
-                openAppBtn.addEventListener('click', function () {
-                    sessionStorage.setItem('healr_attempted', 'true');
-                    openAppBtn.disabled = true;
-                    openAppBtn.textContent = 'Opening…';
-                    // User gesture required: top-level navigation so OS can open app (Universal/App Link).
-                    window.location.href = universalLink;
-                    setTimeout(function () {
-                        if (!document.hidden) {
-                            window.location.href = isAndroid ? androidStore : iosStore;
-                            setTimeout(function () {
-                                fallbackUi.style.display = 'flex';
-                            }, 1500);
-                        }
-                    }, 2500);
-                });
 
-                const redirectTimer = setTimeout(function () {
-                    const elapsed = Date.now() - start;
-                    if (!document.hidden && document.visibilityState !== 'hidden' && elapsed < 5000) {
-                        window.location.href = isAndroid ? androidStore : iosStore;
-                        setTimeout(function () {
-                            fallbackUi.style.display = 'flex';
-                        }, 2000);
+                // Do NOT auto-redirect to store – let the user tap "Open in HealR App" first.
+                // Only show store buttons after a long delay so they can manually download if needed.
+                const showFallbackTimer = setTimeout(function () {
+                    if (!document.hidden) {
+                        fallbackUi.style.display = 'flex';
                     }
-                }, 3000);
+                }, 8000);
 
                 const clear = function () {
-                    clearTimeout(redirectTimer);
+                    clearTimeout(showFallbackTimer);
                     sessionStorage.removeItem('healr_attempted');
                 };
                 window.addEventListener('blur', clear, { once: true });
