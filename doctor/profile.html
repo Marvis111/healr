@@ -1437,7 +1437,7 @@
                             <!-- Availability Badge commented out -->
                             <!-- <div class="availability-badge" id="availability"></div> -->
 
-                            <a href="https://go.healr.ng/book?username=${doctorData.username}" class="book-btn" id="book-consultation-btn">Book Consultation</a>
+                            <a href="https://app.healr.ng/book?username=${doctorData.username}" class="book-btn" id="book-consultation-btn">Book Consultation</a>
 
                             <div style="border-top: 1px solid var(--border-color); padding-top: 1rem;">
                                 <h4 style="font-weight: 600; color: var(--text-dark); margin-bottom: 0.75rem;">What to
@@ -1473,59 +1473,23 @@
             // Now populate the data
             renderDoctorProfile(doctorData);
 
-            // Refactor booking logic into a dedicated function
-            function handleBookingAction(isAutoTrigger = false) {
-                const username = doctorData.username;
-                const androidStore = 'https://play.google.com/store/apps/details?id=com.myzoda.healr';
-                const iosStore = 'https://apps.apple.com/ng/app/healr-app/id6752496528';
-                const deepLink = `https://go.healr.ng/book?username=${username}`;
-
-                // Detect OS
+            function isMobileDevice() {
                 const userAgent = navigator.userAgent || navigator.vendor || window.opera;
                 const isAndroid = /android/i.test(userAgent);
                 const isIOS = /iPad|iPhone|iPod/.test(userAgent) && !window.MSStream;
-
-                if (isAndroid || isIOS) {
-                    const start = Date.now();
-
-                    // Attempt app opening via navigation
-                    const link = document.createElement('a');
-                    link.href = deepLink;
-                    link.style.display = 'none';
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
-
-                    // Fallback to store
-                    const redirectTimer = setTimeout(() => {
-                        const elapsed = Date.now() - start;
-                        if (document.hidden || document.visibilityState === 'hidden' || elapsed > 5000) return;
-                        window.location.href = isAndroid ? androidStore : iosStore;
-                    }, 10000);
-
-                    const clear = () => clearTimeout(redirectTimer);
-                    window.addEventListener('blur', clear, { once: true });
-                    window.addEventListener('visibilitychange', () => {
-                        if (document.hidden) clear();
-                    }, { once: true });
-                } else {
-                    // Desktop fallback - Show Modal
-                    document.getElementById('app-redirect-modal').classList.add('active');
-                }
+                return isAndroid || isIOS;
             }
 
-            // Add event listeners
+            // Keep native navigation for mobile taps (required for universal/app links).
+            // Only desktop users should be blocked and shown a modal.
             const bookBtn = document.getElementById('book-consultation-btn');
             if (bookBtn) {
                 bookBtn.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    handleBookingAction(false);
+                    if (!isMobileDevice()) {
+                        e.preventDefault();
+                        document.getElementById('app-redirect-modal').classList.add('active');
+                    }
                 });
-            }
-
-            // Auto-trigger if landing directly on /book endpoint
-            if (window.location.pathname === '/book' || window.location.pathname === '/book/') {
-                handleBookingAction(true);
             }
 
             // Close App Modal logic

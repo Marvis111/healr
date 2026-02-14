@@ -8,6 +8,9 @@ on:
         type: choice
         options:
           - prod
+  push:
+    branches:
+      - test
 
 permissions:
   id-token: write # This is required for aws oidc connection
