@@ -148,6 +148,26 @@
             }
         }
 
+        /* Primary "Open in App" button - user gesture required on mobile for deep link to work */
+        .open-app-btn {
+            display: none;
+            margin-top: 1.5rem;
+            padding: 1rem 1.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            color: white;
+            background: var(--primary-color);
+            border: none;
+            border-radius: 0.75rem;
+            cursor: pointer;
+            font-family: var(--font-main);
+            transition: transform 0.2s;
+        }
+
+        .open-app-btn:active {
+            transform: scale(0.98);
+        }
+
         /* App Store Buttons for quick manual fallback */
         .store-buttons {
             display: none;
@@ -193,6 +213,10 @@
             </p>
         </div>
 
+        <div id="open-app-ui" style="display: none; margin-top: 1.5rem;">
+            <button type="button" id="open-app-btn" class="open-app-btn">Open in HealR App</button>
+        </div>
+
         <div id="fallback-ui" class="store-buttons">
             <p style="margin-bottom: 1.5rem; font-size: 0.9rem;">Still waiting? You can download the app manually to
                 continue.</p>
@@ -221,57 +245,70 @@
             const androidStore = 'https://play.google.com/store/apps/details?id=com.myzoda.healr';
             const iosStore = 'https://apps.apple.com/ng/app/healr-app/id6752496528';
 
-            // CRITICAL: Use the custom protocol (healr://) inside the code to avoid hitting the server again.
-            // This PREVENTS THE LOOP because the server only tracks https://healr.ng/book
-            const appProtocolLink = `https://healr.ng/book?username=${username}`;
+            // Universal Link (iOS/Android) – must be opened from a user gesture to work in production.
+            const universalLink = `https://healr.ng/book?username=${username || ''}`;
 
-            // Detect OS
             const userAgent = navigator.userAgent || navigator.vendor || window.opera;
             const isAndroid = /android/i.test(userAgent);
             const isIOS = /iPad|iPhone|iPod/.test(userAgent) && !window.MSStream;
 
             if (isAndroid || isIOS) {
-                // Prevent multiple attempts if they navigate back
+                const openAppUi = document.getElementById('open-app-ui');
+                const openAppBtn = document.getElementById('open-app-btn');
+                const fallbackUi = document.getElementById('fallback-ui');
+
                 if (sessionStorage.getItem('healr_attempted')) {
-                    document.getElementById('fallback-ui').style.display = 'flex';
+                    openAppUi.style.display = 'block';
+                    fallbackUi.style.display = 'flex';
                     return;
                 }
-                sessionStorage.setItem('healr_attempted', 'true');
 
                 const start = Date.now();
 
-                // Method 1: Hidden Iframe (Classic reliable way to trigger protocols without navigation)
+                // Best-effort auto attempt (often blocked on production – no user gesture).
                 const iframe = document.createElement('iframe');
                 iframe.style.display = 'none';
-                iframe.src = appProtocolLink;
+                iframe.src = universalLink;
                 document.body.appendChild(iframe);
 
-                // Method 2: Fallback timer logic
-                const redirectTimer = setTimeout(() => {
-                    const elapsed = Date.now() - start;
+                // Show "Open in HealR App" so user can tap – required for deep link in production.
+                openAppUi.style.display = 'block';
+                openAppBtn.addEventListener('click', function () {
+                    sessionStorage.setItem('healr_attempted', 'true');
+                    openAppBtn.disabled = true;
+                    openAppBtn.textContent = 'Opening…';
+                    // User gesture required: top-level navigation so OS can open app (Universal/App Link).
+                    window.location.href = universalLink;
+                    setTimeout(function () {
+                        if (!document.hidden) {
+                            window.location.href = isAndroid ? androidStore : iosStore;
+                            setTimeout(function () {
+                                fallbackUi.style.display = 'flex';
+                            }, 1500);
+                        }
+                    }, 2500);
+                });
 
-                    // If the page is still visible and less than 5s passed (no app switch detected)
+                const redirectTimer = setTimeout(function () {
+                    const elapsed = Date.now() - start;
                     if (!document.hidden && document.visibilityState !== 'hidden' && elapsed < 5000) {
                         window.location.href = isAndroid ? androidStore : iosStore;
-
-                        setTimeout(() => {
-                            document.getElementById('fallback-ui').style.display = 'flex';
+                        setTimeout(function () {
+                            fallbackUi.style.display = 'flex';
                         }, 2000);
                     }
                 }, 3000);
 
-                const clear = () => {
+                const clear = function () {
                     clearTimeout(redirectTimer);
-                    // If we successfully opened the app, we can clear the session flag for next time
                     sessionStorage.removeItem('healr_attempted');
                 };
                 window.addEventListener('blur', clear, { once: true });
-                window.addEventListener('visibilitychange', () => {
+                window.addEventListener('visibilitychange', function () {
                     if (document.hidden) clear();
                 }, { once: true });
 
             } else {
-                // Desktop - Redirect to doctor profile page
                 window.location.href = username ? `/doctor/${username}` : '/';
             }
         });
