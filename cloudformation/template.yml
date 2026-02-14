@@ -129,11 +129,6 @@ Resources:
                 };
             }
 
-            // Handle /book smart link routing
-            if (uri === '/book' || uri === '/book/') {
-                request.uri = '/book.html';
-                return request;
-            }
 
             // 3. Pretty URL rewrite to .html (e.g., "/about" -> "/about.html")
             if (regexSuffixless.test(uri)) {
