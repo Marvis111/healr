@@ -217,14 +217,14 @@
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const urlParams = new URLSearchParams(window.location.search);
-            const username = urlParams.get('username');
+            const username = urlParams.get('username') || '';
+            const encodedUsername = encodeURIComponent(username);
 
             const androidStore = 'https://play.google.com/store/apps/details?id=com.myzoda.healr';
             const iosStore = 'https://apps.apple.com/ng/app/healr-app/id6752496528';
 
-            // CRITICAL: Use the custom protocol (healr://) inside the code to avoid hitting the server again.
-            // This PREVENTS THE LOOP because the server only tracks https://healr.ng/book
-            const appProtocolLink = `https://healr.ng/book?username=${username}`;
+            // Use the app-link domain to trigger Universal/App Links with fallback to stores.
+            const appProtocolLink = `healr://healr.ng/book?username=${encodedUsername}`;
 
             // Detect OS
             const userAgent = navigator.userAgent || navigator.vendor || window.opera;
@@ -240,6 +240,7 @@
                 sessionStorage.setItem('healr_attempted', 'true');
 
                 const start = Date.now();
+                console.log('hello..');
 
                 // Method 1: Hidden Iframe (Classic reliable way to trigger protocols without navigation)
                 const iframe = document.createElement('iframe');
